@@ -1,0 +1,142 @@
+createNode transform -n "PLACER";
+	rename -uid "3C9D1744-401E-CA09-36DF-43A04FDEE25C";
+	addAttr -ci true -sn "rotOrder" -ln "rotOrder" -min 0 -max 5 -en "xyz:yzx:zxy:xzy:yxz:zyx" 
+		-at "enum";
+	addAttr -ci true -sn "CTRL" -ln "CTRL" -dt "string";
+	addAttr -ci true -sn "xprt" -ln "xprt" -dt "string";
+	addAttr -ci true -sn "poseMirror" -ln "poseMirror" -dt "string";
+	addAttr -ci true -k true -sn "sceneScale" -ln "sceneScale" -dv 1 -min 0.01 -max 
+		10 -at "double";
+	setAttr -k off ".v";
+	setAttr -l on -k off ".sx";
+	setAttr -l on -k off ".sy";
+	setAttr -l on -k off ".sz";
+	setAttr -k on ".rotOrder";
+	setAttr -l on ".CTRL" -type "string" "yes";
+	setAttr -l on ".xprt" -type "string" "yes";
+	setAttr ".poseMirror" -type "string" "X";
+	setAttr -k on ".sceneScale";
+createNode nurbsCurve -n "PLACERShape" -p "PLACER";
+	rename -uid "084536C5-43B9-63A1-CBCB-DFAD8FE4A6FB";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 17;
+	setAttr ".cc" -type "nurbsCurve" 
+		3 8 2 no 3
+		13 0 1 2 3 4 5 6 7 8 9 10 11 12
+		11
+		3.9964192869452475 2.4471010439041189e-016 -3.9964192869452413
+		-6.448017009992956e-016 3.4607234847865659e-016 -5.6517903565273784
+		-3.9964192869452435 2.4471010439041199e-016 -3.9964192869452435
+		-5.6517903565273784 1.0028310854255807e-031 -1.6377474486909872e-015
+		-3.9964192869452444 -2.4471010439041194e-016 3.9964192869452422
+		-1.7029947354311648e-015 -3.4607234847865664e-016 5.6517903565273793
+		3.9964192869452413 -2.4471010439041204e-016 3.996419286945244
+		5.6517903565273784 -1.8587613346314438e-031 3.0355876256330981e-015
+		3.9964192869452475 2.4471010439041189e-016 -3.9964192869452413
+		-6.448017009992956e-016 3.4607234847865659e-016 -5.6517903565273784
+		-3.9964192869452435 2.4471010439041199e-016 -3.9964192869452435
+		;
+createNode nurbsCurve -n "PLACERShape1" -p "PLACER";
+	rename -uid "1D9F300B-42DE-092F-DC2E-3CAF87F6DDC4";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 17;
+	setAttr ".cc" -type "nurbsCurve" 
+		1 7 0 no 3
+		8 0 1 2 3 4 5 6 7
+		8
+		0.498 0 -6.1639999999999997
+		0.498 0 -7.4089999999999998
+		0.996 0 -7.4089999999999998
+		0 0 -8.6539999999999999
+		-0.996 0 -7.4089999999999998
+		-0.498 0 -7.4089999999999998
+		-0.498 0 -6.1639999999999997
+		0.498 0 -6.1639999999999997
+		;
+createNode nurbsCurve -n "PLACERShape2" -p "PLACER";
+	rename -uid "75B1C38F-4C2F-98FD-0750-44B8DF86FD71";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 17;
+	setAttr ".cc" -type "nurbsCurve" 
+		1 7 0 no 3
+		8 0 1 2 3 4 5 6 7
+		8
+		-6.0960000000000001 0 -0.56599999999999995
+		-7.3410000000000002 0 -0.56599999999999995
+		-7.3410000000000002 0 -1.0640000000000001
+		-8.5860000000000003 0 -0.065000000000000002
+		-7.3410000000000002 0 0.92800000000000005
+		-7.3410000000000002 0 0.42999999999999999
+		-6.0960000000000001 0 0.42999999999999999
+		-6.0960000000000001 0 -0.56599999999999995
+		;
+createNode nurbsCurve -n "PLACERShape3" -p "PLACER";
+	rename -uid "50E5A049-4D60-E17F-853D-5FA40B8847E9";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 17;
+	setAttr ".cc" -type "nurbsCurve" 
+		1 7 0 no 3
+		8 0 1 2 3 4 5 6 7
+		8
+		-0.498 0 6.0284000000000004
+		-0.498 0 7.2733999999999996
+		-0.996 0 7.2733999999999996
+		0 0 8.5183999999999997
+		0.996 0 7.2733999999999996
+		0.498 0 7.2733999999999996
+		0.498 0 6.0284000000000004
+		-0.498 0 6.0284000000000004
+		;
+createNode nurbsCurve -n "PLACERShape4" -p "PLACER";
+	rename -uid "E4E276E9-4442-240E-C287-459417696FF6";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 17;
+	setAttr ".cc" -type "nurbsCurve" 
+		1 7 0 no 3
+		8 0 1 2 3 4 5 6 7
+		8
+		6.0960000000000001 0 0.42999999999999999
+		6.0960000000000001 0 -0.56599999999999995
+		7.3410000000000002 0 -0.56599999999999995
+		7.3410000000000002 0 -1.0640000000000001
+		8.5860000000000003 0 -0.065000000000000002
+		7.3410000000000002 0 0.92800000000000005
+		7.3410000000000002 0 0.42999999999999999
+		6.0960000000000001 0 0.42999999999999999
+		;
+select -ne :time1;
+	setAttr ".o" 1;
+	setAttr ".unw" 1;
+select -ne :hardwareRenderingGlobals;
+	setAttr ".otfna" -type "stringArray" 22 "NURBS Curves" "NURBS Surfaces" "Polygons" "Subdiv Surface" "Particles" "Particle Instance" "Fluids" "Strokes" "Image Planes" "UI" "Lights" "Cameras" "Locators" "Joints" "IK Handles" "Deformers" "Motion Trails" "Components" "Hair Systems" "Follicles" "Misc. UI" "Ornaments"  ;
+	setAttr ".otfva" -type "Int32Array" 22 0 1 1 1 1 1
+		 1 1 1 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 ;
+	setAttr ".fprt" yes;
+select -ne :renderPartition;
+	setAttr -s 5 ".st";
+select -ne :renderGlobalsList1;
+select -ne :defaultShaderList1;
+	setAttr -s 7 ".s";
+select -ne :postProcessList1;
+	setAttr -s 2 ".p";
+select -ne :defaultRenderingList1;
+select -ne :initialShadingGroup;
+	setAttr ".ro" yes;
+select -ne :initialParticleSE;
+	setAttr ".ro" yes;
+select -ne :defaultResolution;
+	setAttr ".pa" 1;
+select -ne :hardwareRenderGlobals;
+	setAttr ".ctrs" 256;
+	setAttr ".btrs" 512;
+select -ne :ikSystem;
+	setAttr -s 4 ".sol";
+select -ne :hyperGraphInfo;
+connectAttr "PLACER.rotOrder" "PLACER.ro";
+// End of PLACER_crv.ma

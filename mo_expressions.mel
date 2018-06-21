@@ -1,0 +1,23 @@
+////offset object
+int $offset = 3;
+int $currentTime = `currentTime -q`;
+$offsetTime = $currentTime - $offset;
+$sourceXpos = `getAttr -t $offsetTime pSphere1.tx`;
+$sourceYpos = `getAttr -t $offsetTime pSphere1.ty`;
+$sourceZpos = `getAttr -t $offsetTime pSphere1.tz`;
+locator1.translateX = $sourceXpos;
+locator1.translateY = $sourceYpos;
+locator1.translateZ = $sourceZpos;
+
+
+////windshield wiper. sine
+wiper.rx = (sin (.9 *time)*45)+10;
+//speed = how much fast you want() here i have put .9
+//degree = i put (45)
+//offset for position i put (10)
+
+////wheels on car
+wheel.rz=car.tx/(2*3.145) * 1*360;
+
+////moving turbulence field with object. through particle
+turbulancefield.phaseX = times * 4; 

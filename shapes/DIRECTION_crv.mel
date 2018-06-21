@@ -1,0 +1,68 @@
+
+createNode transform -n "DIRECTION";
+	rename -uid "62E2F675-4D28-256E-AD88-B1AE1800808F";
+	addAttr -ci true -sn "rotOrder" -ln "rotOrder" -min 0 -max 5 -en "xyz:yzx:zxy:xzy:yxz:zyx" 
+		-at "enum";
+	addAttr -ci true -sn "CTRL" -ln "CTRL" -dt "string";
+	addAttr -ci true -sn "xprt" -ln "xprt" -dt "string";
+	addAttr -ci true -sn "poseMirror" -ln "poseMirror" -dt "string";
+	addAttr -ci true -k true -sn "size" -ln "size" -dv 1 -min 0.01 -max 10 -at "double";
+	setAttr -l on -k off ".v";
+	setAttr -k off ".sx";
+	setAttr -k off ".sy";
+	setAttr -k off ".sz";
+	setAttr -l on ".rotOrder";
+	setAttr -l on ".CTRL" -type "string" "yes";
+	setAttr -l on ".xprt" -type "string" "yes";
+	setAttr ".poseMirror" -type "string" "X";
+	setAttr -k on ".size";
+createNode nurbsCurve -n "DIRECTIONShape" -p "DIRECTION";
+	rename -uid "81FD0816-4FD4-5E67-B937-358D20F2A01B";
+	setAttr -k off ".v";
+	setAttr ".ove" yes;
+	setAttr ".ovc" 13;
+	setAttr ".cc" -type "nurbsCurve" 
+		1 5 0 no 3
+		6 0 1 2 3 4 5
+		6
+		-2.3999999999999999 0 -2.3999999999999999
+		2.3999999999999999 0 -2.3999999999999999
+		2.3999999999999999 0 2.3999999999999999
+		0 0 3.5999999999999996
+		-2.3999999999999999 0 2.3999999999999999
+		-2.3999999999999999 0 -2.3999999999999999
+		;
+select -ne :time1;
+	setAttr ".o" 1;
+	setAttr ".unw" 1;
+select -ne :hardwareRenderingGlobals;
+	setAttr ".otfna" -type "stringArray" 22 "NURBS Curves" "NURBS Surfaces" "Polygons" "Subdiv Surface" "Particles" "Particle Instance" "Fluids" "Strokes" "Image Planes" "UI" "Lights" "Cameras" "Locators" "Joints" "IK Handles" "Deformers" "Motion Trails" "Components" "Hair Systems" "Follicles" "Misc. UI" "Ornaments"  ;
+	setAttr ".otfva" -type "Int32Array" 22 0 1 1 1 1 1
+		 1 1 1 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 ;
+	setAttr ".fprt" yes;
+select -ne :renderPartition;
+	setAttr -s 5 ".st";
+select -ne :renderGlobalsList1;
+select -ne :defaultShaderList1;
+	setAttr -s 7 ".s";
+select -ne :postProcessList1;
+	setAttr -s 2 ".p";
+select -ne :defaultRenderingList1;
+select -ne :initialShadingGroup;
+	setAttr ".ro" yes;
+select -ne :initialParticleSE;
+	setAttr ".ro" yes;
+select -ne :defaultResolution;
+	setAttr ".pa" 1;
+select -ne :hardwareRenderGlobals;
+	setAttr ".ctrs" 256;
+	setAttr ".btrs" 512;
+select -ne :ikSystem;
+	setAttr -s 4 ".sol";
+select -ne :hyperGraphInfo;
+connectAttr "DIRECTION.size" "DIRECTION.sx" -l on;
+connectAttr "DIRECTION.size" "DIRECTION.sy" -l on;
+connectAttr "DIRECTION.size" "DIRECTION.sz" -l on;
+connectAttr "DIRECTION.rotOrder" "DIRECTION.ro";
+// End of DIRECTION_crv.ma

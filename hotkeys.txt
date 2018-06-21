@@ -1,0 +1,41 @@
+# Ctrl+shift + t
+#weigthed tangents lock
+keyTangent -e -weightedTangents true ;
+keyTangent -weightLock off;
+keyTangent -lock on;
+
+# Ctrl+t
+#weigthed tangents free
+keyTangent -e -weightedTangents true ;
+keyTangent -weightLock off;
+keyTangent -lock on;
+
+# Alt+t
+#non-weigthed
+keyTangent -e -weightedTangents true;
+keyTangent -lock on;
+keyTangent -weightLock on
+
+#hammer weights
+weightHammerVerts;
+
+#copy/paste weights
+artAttrSkinWeightCopy;
+artAttrSkinWeightPaste;
+
+# Ctrl +Alt+y
+#cycle anim
+setInfinity -pri cycleRelative;
+setInfinity -poi cycle;
+
+# Ctrl + Alt + i
+#infinity
+pm.setInfinity(pri='linear', poi='linear')
+pm.keyTangent(itt='spline', ott='spline')
+
+
+# Ctrl + Alt + q
+# green
+keyframe -time `currentTime -q` -tds 1;
+
+
