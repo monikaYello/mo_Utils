@@ -1,4 +1,5 @@
 import pymel.core as pm
+import maya.cmds as cmds
 
 '''
 sys.path.append("D:\Google Drive\PythonScripting\scripts")
@@ -90,9 +91,109 @@ def getQuickSelSets():
                     unnSets.append(withNS[0])
     return selSets + unnSets
 
+
 def isolateChannel():
     selected = pm.selected()
     attr = 'translateY'
     pm.select(clear=1)
     for s in selected:
         pm.select(pm.ls("%s_%s" % (s.split(":")[-1], attr)), add=1)
+
+def bakeTimeWarp(objects,start,end,killWarp=True):
+    # for each frame between start and end, query time1.outTime and time1.unwarpedTime
+    # for each object, get each channel with at least one keyframe set
+    # for each channel:
+    #     get the value of the channel at outTime
+    #     set the channel to this value at unwarpedTime and set a keyframe
+
+    # # testing #
+    # objects = cmds.ls(sl=1)
+    # start = int(cmds.playbackOptions(q=1, min=1))
+    # end = int(cmds.playbackOptions(q=1, max=1))
+
+    for i in objects:
+        dupe = cmds.duplicate(i,po=1)[0]
+        if not cmds.attributeQuery('bakeTimeWarpConnection',node=i,ex=1):
+            cmds.addAttr(i,ln='bakeTimeWarpConnection',at='message')
+        cmds.connectAttr(dupe+'.message',i+'.bakeTimeWarpConnection')
+    for x in range(start,end+1):
+        cmds.currentTime(x)
+        outTime = cmds.getAttr('time1.outTime')
+        unwarpedTime = cmds.getAttr('time1.unwarpedTime')
+        for i in objects:
+            # build a list of all keyed channels.
+            keyables = cmds.listAttr(i,k=1)
+            keyedChans = [f for f in keyables if cmds.keyframe(i+'.'+f,q=1,n=1)]
+            dupe = cmds.listConnections(i+'.bakeTimeWarpConnection')[0]
+            for chan in keyedChans:
+                val = cmds.getAttr(i+'.'+chan,t=outTime)
+                cmds.setAttr(dupe+'.'+chan,val)
+                cmds.setKeyframe(dupe+'.'+chan,t=unwarpedTime)
+    # now reconnect anim curves from the duplicate to the original. then delete the duplicates and finally remove the timewarp.
+    for i in objects:
+        dupe = cmds.listConnections(i+'.bakeTimeWarpConnection')[0]
+        chans = [f for f in cmds.listAttr(dupe,k=1) if cmds.keyframe(dupe+'.'+f,q=1,n=1)]
+        for chan in chans:
+            animCurve = cmds.keyframe(dupe+'.'+chan,q=1,n=1)[0]
+            oldCurve = cmds.keyframe(i+'.'+chan,q=1,n=1)
+            cmds.connectAttr(animCurve+'.output',i+'.'+chan,f=1)
+            cmds.delete(oldCurve)
+        cmds.delete(dupe)
+        cmds.deleteAttr(i+'.bakeTimeWarpConnection')
+    if killWarp:
+        timeWarp = cmds.listConnections('time1.timewarpIn_Raw')[0]
+        cmds.delete(timeWarp)
+
+
+def offsetKeyframe(timechChange, nodes='all'):
+    from maya import cmds
+    if nodes == 'all':
+        anim_curves = cmds.ls(type=['animCurveTA', 'animCurveTL', 'animCurveTT', 'animCurveTU'])
+    else:
+        anim_curves = pm.ls(nodes)
+    for each in anim_curves:
+        cmds.keyframe(each, edit=True, relative=True, timeChange=timechChange)
+
+
+def scaleKeyframes(by=1.041666666666667, nodes='all'):
+    # to do a scene conversion from 25 to 24 frames per sec
+    from maya import cmds
+    if nodes == 'all':
+        anim_curves = cmds.ls(type=['animCurveTA', 'animCurveTL', 'animCurveTT', 'animCurveTU'])
+    else:
+        anim_curves = nodes
+
+    for each in anim_curves:
+        pm.scaleKey(each, timeScale=by)
+    print 'Done. Scaled %s Keyframe' % len(anim_curves)
+
+
+def convertFrameRate(fromFPS, toFPS, nodes='all'):
+    '''
+
+    :param fromFPS: originial frame rate, eg 25
+    :param toFPS: target frame rate, eg 24
+    :param nodes: the nodes to scale. All will scale all keyframes in the scene
+    :return: scaledKeys: Nr of keys to be scaled
+
+    example:
+    convertFrameRate(25, 24, nodes='all')
+    '''
+    scaledKeys = []
+
+    by = (float(fromFPS) * 1.0000000) / (float(toFPS) * 1.000000)
+    print 'Scaling by %s' % by
+
+    if nodes == 'all':
+        anim_curves = cmds.ls(type=['animCurveTA', 'animCurveTL', 'animCurveTT', 'animCurveTU'])
+    else:
+        anim_curves = nodes
+
+    for each in anim_curves:
+        try:
+            pm.scaleKey(each, timeScale=by)
+            scaledKeys.append(each)
+        except:
+            pass
+    print 'Done. Scaled %s Keyframe by %s' % (len(scaledKeys), by)
+    return len(scaledKeys)

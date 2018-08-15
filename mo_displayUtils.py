@@ -229,3 +229,32 @@ def layoutCleanTrak(name='cleanPersp/Outliner'):
 
     pm.mel.eval('setNamedPanelLayout( "%s" )'%name)
     #pm.deleteUI(configName, panel=1)
+
+
+def toggleFlatShaded():
+    activeview = pm.getPanel(up=1)
+    nurbsCurvesstatus = pm.modelEditor(activeview, q=1, dl=1)
+
+    if nurbsCurvesstatus == "default":
+        pm.modelEditor(activeview, dl="flat", e=1)
+    else:
+        pm.modelEditor(activeview, dl="default", e=1)
+
+def toggleGeometryVisibility():
+    activeview=pm.getPanel(up=1)
+    nurbsCurvesstatus=pm.modelEditor(activeview, q=1, polymeshes=1)
+
+    if nurbsCurvesstatus:
+        pm.modelEditor(activeview, e=1, polymeshes=0)
+    else:
+        pm.modelEditor(activeview, e=1, polymeshes=1)
+
+
+def toggleCurvesVisibility():
+    activeview = pm.getPanel(up=1)
+    nurbsCurvesstatus = pm.modelEditor(activeview, q=1, nurbsCurves=1)
+
+    if nurbsCurvesstatus:
+        pm.modelEditor(activeview, e=1, nurbsCurves=0)
+    else:
+        pm.modelEditor(activeview, e=1, nurbsCurves=1)

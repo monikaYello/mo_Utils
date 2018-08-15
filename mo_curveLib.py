@@ -9,7 +9,6 @@ def createShapeCtrl(type, name='C_test_ctrl', scale=1, color='yellow'):
     Returns:
         object: 
     """
-    print 'create Shape Ctrl'
     controller = ""
     if(type == "locator"):
         controller=str(pm.curve(p=[(0, 2, 0), (0, -2, 0), (0, 0, 0), (0, 0, 2), (0, 0, -2), (0, 0, 0), (2, 0, 0), (-2, 0, 0)],k=[0, 1, 2, 3, 4, 5, 6, 7],d=1,name=name))
@@ -78,7 +77,6 @@ def createTextCtrl(text, name, font="Utopia-Regular", size=1, color='yellow'):
     if len(textS) > 1: # more than one shape combine them under one transform
         i = 1
         for txtS in textS[1:]:
-            print txtS
             pm.parent(txtS, textT[0], s=1)
             pm.rename(txtS, '%sShape%s'%(textT[0], i))
             pm.delete(textT[i])

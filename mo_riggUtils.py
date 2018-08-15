@@ -9,7 +9,8 @@ reload(mathUtils)
 _logger = logging.getLogger(__name__)
 
 '''
-sys.path.append('/run/media/monikadell/Data/My3DWork/PythonScripting/scripts/')
+import sys
+sys.path.append('D:/Google Drive/PythonScripting/scripts')
 import mo_Utils.mo_riggUtils as mo_riggUtils
 reload(mo_riggUtils)
 mo_riggUtils.createCvControls(curves='curve2', ctrl='cluster')
@@ -1674,12 +1675,17 @@ def snap(driver, driven, typeCnx='parent', extraDrivers=(), skip=[]):
 	snaps objects and skips locked attributes to prevent errors...
 	also this doesnt uses constraints to snap..
 	so The target objet could have keys if it is needed
+
 	libUtil.snap('cube', 'target' , typeCnx='parent')
 
 	Args:
 		 driver:
 		 driven:
 		 typeCnx:
+		 	['parent', 'parentCon', 1, 'p', 'P']
+		 	['point', 'translate', 3, 't', 'T']
+		 	['orient', 'rotate', 2, 'r', 'R']
+		 	['scale', 'Scale', 4, 's', 'S']
 		 extraDrivers:
 		 skip:
 
@@ -1774,3 +1780,16 @@ def snap(driver, driven, typeCnx='parent', extraDrivers=(), skip=[]):
 		driven.attr(s).set(skipMemory[i])
 		i = i + 1
 	pm.select(driven)
+
+def replaceParentConstraintWithSkin():
+
+	objList = pm.selected()
+	jointList = []
+	pm.select(clear=1)
+	if pm.objExists('jointGroup') == 0:
+		pm.group(n='jointGroup', empty=1)
+	for o in objList:
+		jntname = o.nodeName().split(':')[-1] + 'JTN'
+	jointList.append(pm.joint(n=o.jntname))
+	pm.parent(jointList[-1])
+	pm.parentConstraint(o, jnt, mo=0)

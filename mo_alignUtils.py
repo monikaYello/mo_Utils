@@ -130,3 +130,15 @@ def align_centerOfComponents(type="locator"):
 
 
 
+def movePivot(objects, moveto="zero"):
+    for object in objects:
+        if moveto == "zero":
+            pm.move(0, 0, 0, object + ".scalePivot", object + ".rotatePivot", absolute=True)
+        if moveto == "minY":
+            bbox = pm.exactWorldBoundingBox(object)
+            currentPivot = pm.xform(object, q=1, rp=1)
+            #bottom = [(bbox[0] + bbox[3]) / 2, bbox[1], (bbox[2] + bbox[5]) / 2]
+            bottom = [currentPivot[0], bbox[1], currentPivot[2]]
+            pm.xform(object, piv=bottom, ws=True)
+        if moveto == "center":
+            pm.xform(object, cp=1)

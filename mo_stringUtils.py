@@ -63,3 +63,71 @@ def renameHierarchy(objects = None, type=None,prefix='C', suffix='ctrlJnt'):
             i = i+1
             
         pm.rename(obj, '%s_%s%s_%s'%(prefix, name, 1, suffix))
+        
+        
+        
+def list_duplicates(seq=None):
+  if seq == None:
+      print 'searching scene'
+      seq = [f.name() for f in pm.ls(tr=1) if '|' in f]
+      print seq
+      #short but slow: set([x for x in l if l.count(x) > 1])w
+      seen = set()
+      
+      seen_add = seen.add
+      print seen_add
+      # adds all elements it doesn't know yet to seen and all other to seen_twice
+      seen_twice = set()
+      for x in seq:
+          print x
+          if x.rsplit('|')[1]  in seen:
+              seen_twice.add(x)
+              print 'adding seen_twice %s'%x
+          else:
+              seen.add(x.rsplit('|')[1])
+      #seen_twice = set( x for x in seq if  x.rsplit('|')[1] in seen or seen_add(x.rsplit('|')[1]) )
+      
+
+  else:
+      #short but slow: set([x for x in l if l.count(x) > 1])w
+      seen = set()
+      seen_add = seen.add
+      # adds all elements it doesn't know yet to seen and all other to seen_twice
+      seen_twice = set( x for x in seq if x in seen or seen_add(x) )
+  # turn the set into a list (as requested)
+  return list( seen_twice )
+  
+def renameDuplicates(nodes=None, splitChar='', padding=2):
+    # if an xform name contains a '|', it's appearing more than once and we'll have to rename it.
+    badXforms = nodes
+    if nodes == None:
+        badXforms = [f.name() for f in pm.ls() if '|' in f.name()]
+    else:
+        badXforms = [f.name() for f in nodes if '|' in f.name()]
+        
+    badXformsUnlock = [f for f in badXforms if pm.lockNode(f,q=1,lock=1)[0] == False]
+    count = 0
+    addChar = padding + len(splitChar)
+    # sort list by the number of '|' in  name so we can edit names from the bottom of the hierarchy up,
+    countDict = {}
+    for f in badXformsUnlock:
+        countDict[f] = f.count('|')
+    # now sort the dictionary by value, in reverse, and start renaming.
+    for key,value in sorted(countDict.iteritems(),reverse=True, key=lambda (key,value): (value,key)):
+        n = 1
+        newObj = pm.rename(key,key.split('|')[-1]+splitChar+str(n).zfill(padding))
+       
+        while newObj.count('|') > 0:
+            #PREV INFINITE LOOP PROBLEM: if the transform and the shape are named the same
+            n += 1
+            basename = newObj.split('|')[-1]
+            
+            newName = basename[0:-addChar]+splitChar+str(n).zfill(padding)
+            newObj = pm.rename(newObj,newName)
+        print 'renamed %s to %s' % (key,newObj)
+        count = count+1
+    if count < 1:
+        print 'No duplicate names found.'
+    else:
+        print 'Found and renamed '+str(count)+' objects with duplicate names. Check script editor for details.'
+    return badXforms
