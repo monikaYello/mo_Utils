@@ -751,7 +751,7 @@ def createWorlds(worldArray, objArray=None):
     for obj in objArray:
         worldNulls=[]
         for world in worldArray:
-            basename=libName.simpleName(obj)
+            basename=obj.name()
             null=pm.createNode('transform', n=basename+pm.util.capitalize(world))
             snap(obj, null)
             worldNulls.append(null)

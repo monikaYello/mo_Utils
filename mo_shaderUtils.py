@@ -111,10 +111,10 @@ class Colour(pm.dt.Vector):
     _NUM_RE = re.compile('^[0-9. ]+')
 
     def __eq__(self, other, tolerance=_EQ_TOLERANCE):
-        return Vector.__eq__(self, other, tolerance)
+        return pm.dt.Vector.__eq__(self, other, tolerance)
 
     def __ne__(self, other, tolerance=_EQ_TOLERANCE):
-        return Vector.__ne__(self, other, tolerance)
+        return pm.dt.Vector.__ne__(self, other, tolerance)
 
     def __init__(self, colour):
         '''
@@ -154,7 +154,7 @@ class Colour(pm.dt.Vector):
         else:
             clr = colour
 
-        Vector.__init__(self, clr)
+        pm.dt.Vector.__init__(self, clr)
 
     def darken(self, factor):
         '''
@@ -186,13 +186,42 @@ class Colour(pm.dt.Vector):
         if not isinstance(theColour, Colour):
             theColour = Colour(theColour)
 
-        theColour = Vector(theColour[:3])  # make sure its a 3 vector
+        theColour = pm.dt.Vector(theColour[:3])  # make sure its a 3 vector
         matches = []
         for name, colour in cls.NAMED_PRESETS.iteritems():
-            colour = Vector(colour)
+            colour = pm.dt.Vector(colour)
             diff = (colour - theColour).magnitude()
             matches.append((diff, name))
 
         matches.sort()
 
         return matches[0][1]
+
+
+###############################
+## break connection to shading network
+###############################
+def disconnectShaders(objArray=None):
+    if objArray is None: objArray = pm.ls(sl=1)
+    shapeNodes = []
+    #for all selected obj
+    for obj in objArray:
+        #selection is mesh
+        if pm.ls(obj, type='mesh'):
+            shapeNodes.append(obj)
+        #selection is not mesh. search hierarchy
+        else:
+            shapeNodes = shapeNodes + (pm.ls(obj, dag=1, ap=1, type='mesh'))
+        if shapeNodes ==[]:
+            print 'Warning: Select either mesh or transform nodes with valid shapes. %s'%(obj)
+            #return False
+        print shapeNodes
+        #for all shape nodes
+        for shapeNode in shapeNodes:
+            conns = pm.listConnections(shapeNode)
+            plugs = pm.listConnections(shapeNode, type='shadingEngine', connections=True)
+            for conn in conns:
+                if conn.type() == 'shadingEngine':
+                    print 'Disconnecting shader engine: %s >>> %s'%(obj, conn)
+                    #break ocnnection to shader
+                    pm.disconnectAttr(plugs[0])
