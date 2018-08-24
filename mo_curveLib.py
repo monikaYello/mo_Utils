@@ -60,8 +60,12 @@ def createShapeCtrl(type, name='C_test_ctrl', scale=1, color='yellow'):
     else:
         pm.warning('No type %s found. Doing nothing.'%type)
         return None
+
     # scale and shade
-    pm.xform('%s.cv[0:]' % controller, s=(scale, scale, scale), r=1)
+    crvshapes = pm.listRelatives(controller, children=1, type='nurbsCurve')
+    for crvshape in crvshapes:
+        pm.xform('%s.cv[0:]'%crvshape, s=(scale, scale, scale), r=1)
+
     colorOverride(color, [controller])
     
     return pm.PyNode(controller)
