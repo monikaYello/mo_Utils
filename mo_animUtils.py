@@ -197,3 +197,18 @@ def convertFrameRate(fromFPS, toFPS, nodes='all'):
             pass
     print 'Done. Scaled %s Keyframe by %s' % (len(scaledKeys), by)
     return len(scaledKeys)
+
+
+
+def copyPasteKeyWithOffset(rctrls, rsuffix='R_', lsuffix='L_'):
+    pm.select(rctrls)
+    for rctrl in rctrls:
+        lctrl = rctrl.replace(rsuffix, lsuffix)
+        print 'lctrl is %s'%lctrl
+        rc = pm.copyKey(rctrl, t=(0,31))
+        pm.pasteKey(lctrl, t=31, o="merge")
+        try:
+            pm.cutKey(lctrl, t=(32,66))
+        except:
+            pass
+        pm.pasteKey(lctrl, t=32, o="merge")

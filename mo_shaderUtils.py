@@ -225,3 +225,35 @@ def disconnectShaders(objArray=None):
                     print 'Disconnecting shader engine: %s >>> %s'%(obj, conn)
                     #break ocnnection to shader
                     pm.disconnectAttr(plugs[0])
+
+
+def getShaders( obj ):
+    pm.select( obj )
+    pm.hyperShade( shaderNetworksSelectMaterialNodes=True )
+    return pm.ls(sl=True) # Returns all shaders associated with the object (shape, face etc)
+
+
+
+def copyPasteMaterial( objects ):
+    source = objects[0]
+    target = objects[-1]
+
+    pm.select( source )
+    pm.hyperShade( shaderNetworksSelectMaterialNodes=True )
+    shaders = pm.ls(sl=True) # all shaders associated with the object (shape, face etc)
+    
+    shader = [s for s in shaders if s.type() != 'renderLayer']
+    shadingEngine = shader[0].listConnections(type='shadingEngine')
+
+    pm.sets(shadingEngine[0], edit=True, forceElement=target)
+
+def setReceiveShadow(objectList):
+    for o in objectList:
+        try:
+            shape = o.getShape()
+            print o
+            pm.setAttr('%s.receiveShadows'%shape, 0)
+        except:
+            print 'no shape found. skipping'
+            pass
+    

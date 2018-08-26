@@ -21,3 +21,66 @@ wheel.rz=car.tx/(2*3.145) * 1*360;
 
 ////moving turbulence field with object. through particle
 turbulancefield.phaseX = times * 4; 
+
+
+
+
+
+//The only way to kill a certain particle Id is to give it a lifespan of zero. For example:
+//RUN TIME EXPRESSION FOR REMOVING PARTICLES AFTER THEY REACH
+//10 ON Y AXIS
+//GET THE POSITION OF PARTICLES
+vector $pos= particleShape1.position;
+//CHECK TO SEE IF THEY HAVE PASSED A CERTAIN Y VALUE (10 in this example)
+if ($pos.y>=10)
+{
+int $pi=particleId;
+//PRINT IDs OF PARTICLES TO BE REMOVED
+print ($pi+"\n");
+particle -e -at lifespanPP -id $pi -fv 0 particle1;
+}
+
+
+
+
+
+//Move a particle
+//SELECTE A SINGLE PARTICLES AND EXECUTE THIS
+string $particlesList[] = `ls -sl -fl`;
+float $particlesListSize = size ($particlesList);
+float $partPosition[];
+vector $initLocPos;
+vector $newLocPos;
+//get particle pos
+if ($particlesListSize == 0)
+error "select at less one particle";
+else if ($particlesListSize == 1) 
+$partPosition = `getParticleAttr -at position $particlesList[0]`;
+else if ($particlesListSize > 1) 
+error "to many particles are selected, you can juste move one particle";
+ 
+//create locator into particles pos
+spaceLocator -p 0 0 0 -n moveParticles_Loc;
+xform -a -ws -t $partPosition[0] $partPosition[1] $partPosition[2] moveParticles_Loc;
+ 
+////now move the locator in new position
+// MOVE THE LOCATOR AND EXECTUTE THE SECOND SCRIPT
+
+//set the new particles position
+vector $newLocPos = `xform -q -ws -t moveParticles_Loc`;
+select -r $particlesList[0] ;
+setParticleAttr -at position -vv ($newLocPos.x) ($newLocPos.y) ($newLocPos.z) ; 
+delete moveParticles_Loc;
+
+
+
+
+
+//set the new particles rotation based on velocity if velocity > 0.1
+float $vel[] =  nParticleShape1.velocity;
+float $ang[] = `angleBetween -euler -v1 1 0 0 -v2 $vel[0] $vel[1] $vel[2]`;
+float $maxvel = max(abs($vel[0]), abs($vel[1]), abs($vel[2]));
+
+if (abs($maxvel) > 0.1) {
+	nParticleShape1.rotationPP = <<$ang[0], $ang[1], $ang[2]>>;
+}

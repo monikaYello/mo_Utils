@@ -440,7 +440,7 @@ def wireController(type, name='C_test_ctrl', color="red", size=1, facingAxis="y+
 
         pm.scale(tWire, (size, size, size), relative=1)
         if type == "circle":
-            pm.scale(tWire, (.2, .2,.2), relative=1)
+            pm.scale(tWire, (.22, .22,.22), relative=1)
 
 
         pm.makeIdentity(tWire, apply=True, s=1, r=1, t=1, n=0)
