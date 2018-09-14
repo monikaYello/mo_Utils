@@ -181,7 +181,7 @@ def layoutCleanOutliner(name='cleanPersp/Outliner'):
     '''
 
     import mo_Utils.mo_displayUtil as mo_displayUtil
-    mo_displayUtil.customScriptLayout()
+    mo_displayUtil.layoutCleanOutliner()
     '''
     closeAllFloatingWindows()
     try:

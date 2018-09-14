@@ -146,7 +146,7 @@ def scaleShape(factor, objs=None):
 ## create control for each cv on cuve, skin if True
 ## return list of ctrl shape
 ###############################
-def createCvControlsAlt(curves=None, ctrl='joint', suffix='skinJnt', skin=False):
+def createCvClusters(curves=None, ctrl='joint', suffix='skinJnt', skin=False):
 	if curves == None:
 		curves = pm.ls(sl=1)
 	if not isinstance(curves, list):
@@ -168,6 +168,7 @@ def createCvControlsAlt(curves=None, ctrl='joint', suffix='skinJnt', skin=False)
 			if ctrl == 'cluster':
 				pm.select(curve1.cv[curvePoint])
 				cl = pm.cluster(n='%s_cluster' % curve1.name())
+				jointList.append(cl)
 
 			# joint
 			else:
@@ -271,19 +272,19 @@ def alignJ(jnt1=None, jnt2=None, jnt3=None, viz=True):
 		try:
 			child.setParent(jnt1)
 		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
+			_logger.debug("jnt 1 child no children to parent back in %s" % child)
 
 	for child in jnt2C:
 		try:
 			child.setParent(jnt2)
 		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
+			_logger.debug("jnt 1 child no children to parent back in %s" % child)
 
 	for child in jnt3C:
 		try:
 			child.setParent(jnt3)
 		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
+			_logger.debug("jnt 1 child no children to parent back in %s" % child)
 
 
 # crates cone represenatation of vector based from tfm point
@@ -315,6 +316,16 @@ def vecViz(vector, tfm, name="vectorPoint"):
 	pm.delete(pm.pointConstraint(tfm, grp, mo=False))
 	pointer.setParent(world=True)
 	pm.delete(grp)
+
+def vecVizObjects(objList,  name='vectorPoint'):
+    '''
+    need two objects, 1 for vector, 2 for baase
+    '''
+    if len(objList) == 0:
+        return 'need at least 2 objects'
+    vector = objList[0].getTranslation()
+    return vecViz(vector, tfm=objList[1], name=name)
+
 
 
 def jointOrDeleteHirarchy(node):
@@ -358,97 +369,6 @@ def addSkinAndBlendshape(objList=None):
 		pm.parent(jnt, 'RIGG')  # grpIn
 		pm.bindSkin(jnt, skingeo)
 	return skingeoList
-
-
-def alignJ(jnt1=None, jnt2=None, jnt3=None, viz=True):
-	# align any 3 joints
-	jnt1 = jnt1 or pm.selected()[0]
-	jnt2 = jnt2 or pm.selected()[1]
-	jnt3 = jnt3 or pm.selected()[2]
-
-	# unparent
-	jnt1P = jnt1.getParent()
-	jnt1C = jnt1.getChildren()
-	jnt2P = jnt2.getParent()
-	jnt2C = jnt2.getChildren()
-	jnt3P = jnt3.getParent()
-	jnt3C = jnt3.getChildren()
-
-	jnt1.setParent(world=True)
-	jnt2.setParent(world=True)
-	jnt3.setParent(world=True)
-
-	allChildren = jnt1C + jnt2C + jnt3C
-	for ch in allChildren:
-		ch.setParent(world=True)
-
-	jnt1pos = jnt1.getTranslation()
-	jnt2pos = jnt2.getTranslation()
-	jnt3pos = jnt3.getTranslation()
-
-	# obtain xVec
-	xVec = jnt3pos - jnt2pos
-	if viz:
-		vecViz(xVec, jnt2, name="xvec")
-
-	oppVec = jnt1pos - jnt2pos  # vector pointing from jnt2 to up to jnt1
-	if viz:
-		vecViz(oppVec, jnt2, name="oppvec")
-
-	zVec = oppVec.cross(xVec)  # cross producat
-	if viz:
-		vecViz(zVec, jnt2, name="zVec")
-
-	yVec = xVec.cross(zVec)  # orthonormal basis
-	if viz:
-		vecViz(yVec, jnt2, name="yVec")
-
-	# SHOULDER/Joint1
-	xVec2 = jnt2pos - jnt1pos
-	if viz:
-		vecViz(xVec2, jnt1, name="xVec")
-		# zVecs should be pointing in same direction since aligned
-		vecViz(zVec, jnt1, "zVec")
-
-	yVec2 = xVec2.cross(zVec)
-	if viz:
-		vecViz(yVec2, jnt1, name="yVec")
-
-	# Matrix for proper joint alignment. we used unnormalized matrices, which will cause problems when parenting
-	# Homogenize - normalizes vectors
-	jnt1M = pm.dt.Matrix(xVec2, yVec2, zVec, jnt1pos).homogenize()  # shoulder/joint1 Matrix
-	jnt2M = pm.dt.Matrix(xVec, yVec, zVec, jnt2pos).homogenize()  # ellbow/joint2 Matrix
-	jnt3M = pm.dt.Matrix(xVec, yVec, zVec, jnt3pos).homogenize()  # wrist same as ellbow
-
-	jnt1.setMatrix(jnt1M)
-	jnt2.setMatrix(jnt2M)
-	jnt3.setMatrix(jnt3M)
-
-	# set back into hierarcy. all joints have rotations now, we need to freeze rotations in order for them to function properly
-	jnt1.setParent(jnt1P)
-	pm.makeIdentity(jnt1, apply=True, t=False, r=True, s=False, n=False)
-	jnt2.setParent(jnt2P)
-	pm.makeIdentity(jnt2, apply=True, t=False, r=True, s=False, n=False)
-	jnt3.setParent(jnt3P)
-	pm.makeIdentity(jnt3, apply=True, t=False, r=True, s=False, n=False)
-
-	for child in jnt1C:
-		try:
-			child.setParent(jnt1)
-		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
-
-	for child in jnt2C:
-		try:
-			child.setParent(jnt2)
-		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
-
-	for child in jnt3C:
-		try:
-			child.setParent(jnt3)
-		except:
-			_logger.debut("jnt 1 child no children to parent back in %s" % child)
 
 
 def cleanUpAttr(sel=None, listAttr=['sx', 'sy', 'sz', 'v'], l=1, k=1, cb=0):
@@ -514,85 +434,6 @@ def constrainAuto():
 	c1 = pm.ls(sl=1)[0:-1]
 	slave = pm.ls(sl=1)[-1].listRelatives(parent=1)
 	pm.parentConstraint(c1, slave)
-
-###############################
-## create control at targetPos, constrain target if set to True
-###############################
-def createCtrl(targetPos=False, connect='constraint', shape='box', size=1, color=None, suffix='ctrl'):
-	ctrlList = []
-	if targetPos == False:
-		targetPos = pm.ls(sl=1)
-	if targetPos == []:
-		basename = 'obj'
-		name = 'obj_ctrl'
-		controller = mo_curveLib.createShapeCtrl(shape, name, scale=size)
-		# controller = pm.curve(p=[(size, size, size), (size, size, -size), (-size, size, -size), (-size, -size, -size), (size, -size, -size), (size, size, -size), (-size, size, -size), (-size, size, size), (size, size, size), (size, -size, size), (size, -size, -size), (-size, -size, -size), (-size, -size, size), (size, -size, size), (-size, -size, size), (-size, size, size)],k=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],d=1,name=name)
-		localgrp = pm.group(controller, n='%s_%s' % (basename, 'LOCAL'))
-		zerogrp = pm.group(localgrp, n='%s_%s' % (basename, 'ZERO'))
-		return
-	for each in targetPos:
-		each = pm.PyNode(each)
-		print 'each before %s' % each
-		basename = (each.name().rsplit('_', 1)[:-1])[0]
-		print 'basename is %s' % basename
-		name = '%s_%s' % (basename, suffix)
-		controller = mo_curveLib.createShapeCtrl(shape, name, scale=size)
-		# controller = pm.curve(p=[(size, size, size), (size, size, -size), (-size, size, -size), (-size, -size, -size), (size, -size, -size), (size, size, -size), (-size, size, -size), (-size, size, size), (size, size, size), (size, -size, size), (size, -size, -size), (-size, -size, -size), (-size, -size, size), (size, -size, size), (-size, -size, size), (-size, size, size)],k=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],d=1,name=name)
-		localgrp = pm.group(controller, n='%s_%s' % (basename, 'LOCAL'))
-		zerogrp = pm.group(localgrp, n='%s_%s' % (basename, 'ZERO'))
-		position = pm.xform(each, q=1, ws=1, rp=1)
-
-		zerogrp.setTranslation(position, ws=True)
-		pm.delete(pm.orientConstraint(each, zerogrp, weight=1, offset=(0, 0, 0)))
-		ctrlList.append(controller)
-		if connect == 'constraint':
-			pm.parentConstraint(controller, each)
-		elif connect == 'parent':
-			pm.parent(each, controller)
-		if color is not None:
-			mo_curveLib.colorOverride(controller, color)
-	return ctrlList
-
-
-###############################
-##create joints (floating or chain) targetPos objects
-##return list of joints
-###############################
-def createJointsAtPos(targetPos=False, chain=False, constrain=False, name='joint', suffix='ctrlJnt'):
-	# get selection if targetPos False
-	if targetPos == False:
-		targetPos = pm.ls(sl=1)
-
-	pm.select(clear=True)
-	i = 0
-	rootjoint = None
-	# run through all target positions
-	for each in targetPos:
-
-		position = pm.xform(each, q=1, ws=1, rp=1)
-
-		if (chain == False):
-			pm.select(clear=True)
-		j1 = pm.joint(n='%s%s_%s' % (name, each.name(), suffix))
-		if (i == 0):
-			rootjoint = j1
-		j1.setTranslation(position, ws=True)
-
-		# align via parenting
-		# pm.parent(j1, each)
-		# if(i==0):
-		#    rootjoint = j1
-		# j1.setTranslation([0,0,0])
-		# pm.parent(j1,world=True)
-
-		# constrain
-		if constrain == True:
-			pm.parentConstraint(each, j1)
-		i = i + 1
-	# reorient
-	if (chain == True):
-		pm.select(rootjoint, hi=True)
-		pm.joint(zso=1, ch=1, e=1, oj='xyz', secondaryAxisOrient='ydown')
 
 
 ###############################
@@ -1568,6 +1409,7 @@ def poleVectorPositionMvector(helpers, poleVectorDistance=5.0):
 
 
 def poleVectorPosition(startJnt, midJnt, endJnt, length=12, createLoc=0, createViz=0):
+	
 	import maya.api.OpenMaya as om
 
 	start = pm.xform(startJnt, q=1, ws=1, t=1)
@@ -1791,5 +1633,6 @@ def replaceParentConstraintWithSkin():
 	for o in objList:
 		jntname = o.nodeName().split(':')[-1] + 'JTN'
 	jointList.append(pm.joint(n=o.jntname))
-	pm.parent(jointList[-1])
-	pm.parentConstraint(o, jnt, mo=0)
+	
+	#pm.parent(jointList[-1])
+	#pm.parentConstraint(o, jnt, mo=0)

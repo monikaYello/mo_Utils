@@ -31,9 +31,6 @@ def doItForEveryFrame(commandStr, startFrame=None, endFrame=None):
         exec(commandStr)
 
 
-
-
-
 def infinity(type='linear'):
     pm.setInfinity(pri=type, poi=type)
     pm.keyTangent(itt='spline', ott='spline')
@@ -61,18 +58,77 @@ def copyKeys(source=None, target=None, channel=None, offset=0):
                 pm.pasteKey(each, attribute=channel, timeOffset=offset*i)
         i=i+1
 
-def getQuickSelSets():
-    import maya.cmds as cmds
-    allSets=cmds.listSets(allSets=1)
-    deformSet=cmds.listSets(t=1)
-    shaderSet=cmds.listSets(t=2)
 
-    unusedSet=["defaultCreaseDataSet", "initialTextureBakeSet", "initialVertexBakeSet", "tmpTextureBakeSet", "defaultObjectSet", "defaultLightSet"]
-    allSets=[x for x in allSets if x not in deformSet]
-    allSets=[x for x in allSets if x not in shaderSet]
+def setTimesliderToKeyrange():
+    keyedObj = pm.ls(sl=1)
+    firstKf = pm.findKeyframe(which='first')
+    lastKf = pm.findKeyframe(which='last')
+    pm.playbackOptions(min=firstKf, max=lastKf)
+    return [firstKf, lastKf]
+
+def keyEmpty(obj=None):
+    if obj == None:
+      obj = pm.ls(sl=1)[0]
+    if isinstance(obj, list):
+      obj = obj[0]
+    channels = pm.listAttr(obj, keyable=1)
+    for channel in channels:
+        if pm.listConnections('%s.%s'%(obj, channel)) == []:
+            print 'setting keyframe on %s.%s'%(obj, channel)
+            pm.setKeyframe('%s.%s'%(obj, channel))
+#key bang
+def keyFlash(obj=None, channel=None, fade=18):
+    if obj==None:
+        obj=pm.ls(sl=1)[0]
+    if channel==None:
+        channel = 'translateX'
+    current = pm.currentTime(q=1)
+    
+    kf = [current-1, current, current+1, current+fade]
+    
+    value = pm.getAttr('%s.%s'%(obj, channel))   
+    #see if already keys
+    if pm.listConnections('%s.%s'%(obj, channel)) is not []:
+        pm.cutKey(obj, at=channel, time=(kf[0], kf[-1]))
+        
+    
+    pm.setKeyframe(obj,  at=channel, v=0, t=[kf[0]], ott='stepnext')
+    pm.setKeyframe(obj,  at=channel, v=value, t=[kf[1]], ott='stepnext')
+    pm.setKeyframe(obj,  at=channel, v=value*0.75, t=[kf[2]], ott='auto')
+    pm.setKeyframe(obj,  at=channel, v=0, t=[kf[3]], ott='auto')
+    
+    pm.keyTangent(obj,  at=channel, a=1, outWeight=1, e=1, t=[kf[2]], outAngle=-10.253096)
+    
+def keyFastinSlowout(obj=None, channel=None, span=18):
+    if obj==None:
+        obj=pm.ls(sl=1)[0]
+    if channel==None:
+        channel = 'translateX'
+    current = pm.currentTime(q=1)
+    
+    kf = [current, current+span]
+    
+    value = pm.getAttr('%s.%s'%(obj, channel))
+    #see if already keys
+    if pm.listConnections('%s.%s'%(obj, channel)) is not []:
+       pm.cutKey(obj, at=channel, time=(kf[0], kf[-1]))
+       
+    pm.setKeyframe(obj,  at=channel, v=value, t=[kf[0]], ott='linear')
+    pm.setKeyframe(obj,  at=channel, v=value+12, t=[kf[1]], ott='auto')     
+    
+    pm.keyTangent(obj,  at=channel, a=1, outWeight=1, e=1, t=[kf[0]], outAngle=57.815214) 
+               
+def getQuickSelSets():
+    allSets=cmds.listSets(allSets=1)
+
+    unusedSet=["defaultCreaseDataSet", "initialTextureBakeSet", "initialVertexBakeSet", 
+    "tmpTextureBakeSet", "defaultObjectSet", "defaultLightSet"]
     allSets=[x for x in allSets if x not in unusedSet]
+
     selSets = []
     unnSets = []
+
+
     for xSet in allSets:
         # Maya's cmd "listSets -as" not returning NS !!!
         if pm.objExists(xSet):
@@ -146,7 +202,6 @@ def bakeTimeWarp(objects,start,end,killWarp=True):
 
 
 def offsetKeyframe(timechChange, nodes='all'):
-    from maya import cmds
     if nodes == 'all':
         anim_curves = cmds.ls(type=['animCurveTA', 'animCurveTL', 'animCurveTT', 'animCurveTU'])
     else:
@@ -157,7 +212,6 @@ def offsetKeyframe(timechChange, nodes='all'):
 
 def scaleKeyframes(by=1.041666666666667, nodes='all'):
     # to do a scene conversion from 25 to 24 frames per sec
-    from maya import cmds
     if nodes == 'all':
         anim_curves = cmds.ls(type=['animCurveTA', 'animCurveTL', 'animCurveTT', 'animCurveTU'])
     else:

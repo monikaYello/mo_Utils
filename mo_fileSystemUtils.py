@@ -154,3 +154,27 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
           'New file: %s \nOld file backup: %s'%(len(skip_indices), filepath, filepathold)
 
     return True
+
+
+def tempExportSelected(save_name = 'tempExport', path = "U:/personal/Monika/tempExport" ):
+    pm.cmds.file("%s/%s.ma"%(path,save_name), pr=1, typ="mayaAscii", force=1, options="v=0;", es=1)
+
+def tempImport( save_name = 'tempExport', path = "U:/personal/Monika/tempExport"):
+    pm.cmds.file("%s/%s.ma"%(path,save_name), pr=1, ignoreVersion=1, i=1, type="mayaAscii",
+              namespace=":", ra=True, mergeNamespacesOnClash=True, options="v=0;")
+
+def transferShelfLowerVersion(mayashelfpath = 'C:/Users/dellPC/Documents/maya/2018/prefs/shelves/', shelfname = 'shelf_mo_Rig_shf', fromversion='2018', toversion='2016'):
+    import os
+    oldFilePath="%s%s.mel"%(mayashelfpath, shelfname)
+    oldFile = open(oldFilePath, 'r')
+    newFile = open(oldFilePath.replace(fromversion, toversion), 'w')
+    lines = [line for line in oldFile.readlines() if line.strip()]
+    itemskips = ['highlightColor', 'backgroundColor', 'flexibleWidthType', 'flexibleWidthValue', 'rotation', 'flipX', 'flipY', 'useAlpha']
+    for line in lines:
+        skipline = False   
+        for itemskip in itemskips:
+            if itemskip in line:
+                skipline = True;
+        
+        if not skipline:
+            newFile.write(line)
