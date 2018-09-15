@@ -600,11 +600,11 @@ def getTransformations(t=True, r=False, world=1):
 
 
 # Select skin influences of selected object
-def getSkinInfluenceJoints():
+def getSkinInfluenceJoints(select=True):
 	selGeo = pm.ls(sl=1)
 	getSkin = pm.mel.findRelatedSkinCluster(selGeo[0])
 	skinJoints = pm.listConnections(getSkin, type='joint')
-	pm.select(skinJoints)
+	if select: pm.select(skinJoints)
 	return skinJoints
 	'''sys.path.append('/run/media/monikadell/Data/My3DWork/PythonScripting/scripts/mo_Utils/')
 	import mo_riggUtils as riggUtils

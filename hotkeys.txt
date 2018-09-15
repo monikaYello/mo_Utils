@@ -8,7 +8,7 @@ keyTangent -lock on;
 #weigthed tangents free
 keyTangent -e -weightedTangents true ;
 keyTangent -weightLock off;
-keyTangent -lock on;
+keyTangent -lock off;
 
 # Alt+t
 #non-weigthed
@@ -16,14 +16,14 @@ keyTangent -e -weightedTangents true;
 keyTangent -lock on;
 keyTangent -weightLock on
 
-#hammer weights
+#hammer weights K
 weightHammerVerts;
 
-#copy/paste weights
+#copy/paste weights H J
 artAttrSkinWeightCopy;
 artAttrSkinWeightPaste;
 
-# Ctrl +Alt+y
+# Ctrl + Alt + y
 #cycle anim
 setInfinity -pri cycleRelative;
 setInfinity -poi cycle;
