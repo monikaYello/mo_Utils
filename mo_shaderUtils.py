@@ -1,6 +1,13 @@
 import pymel.core as pm
 import re
 
+'''
+# Convert all shaders to aiStandard
+
+mrShadersToArnold.py
+...in C:\solidangle\mtoadeploy\2018\docs
+
+'''
 
 def createMaterial(name, color, shader):
     newNode = pm.shadingNode(shader, asShader=True, name=name)

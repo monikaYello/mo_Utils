@@ -489,6 +489,5 @@ def solveTriangle(a=None, b=None, c=None, alpha=None, beta=None, gamma=None):
     return {'a': a, 'b': b, 'c': c, 'alpha': alpha, 'beta': beta, 'gamma': gamma}
 
 
-
-
-
+def PointsInCircum(r,n=100):
+    return [(math.cos(2*math.pi/n*x)*r,math.sin(2*math.pi/n*x)*r) for x in xrange(0,n+1)]

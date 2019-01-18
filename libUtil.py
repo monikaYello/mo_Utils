@@ -438,23 +438,7 @@ def curveFromObj(name='curve', objArray=None, curvature=1, rebuild=False):
         pm.rebuildCurve(myCrv, ch=0, rpo=1, rt=0, end=0 ,kr=0, kcp=1, kep=1, kt=1,s=0, d=curvature, tol=0.01)
     return myCrv
 
-#############################################################
-# combine geo
-#############################################################
-def combineGeo(objArray):
 
-    p = pm.listRelatives( objArray[0], p=1 )
-    if len(p)==1:
-        loc = pm.spaceLocator()
-        pm.parent(loc, p[0])
-
-    newObj = pm.polyUnite(objArray, ch = 0,  mergeUVSets=1)
-    if len(p)==1:
-        pm.parent(newObj, p[0])
-        pm.delete(loc)
-    pm.select(newObj)
-    pm.rename(newObj, '%sComb'%objArray[0].nodeName())
-    return newObj
 
 #############################################################
 #creates nonlinear deformer with proper naming
@@ -1876,29 +1860,6 @@ def jntToDisplay():
 
 
 
-def layoutGrid(objectList, xDistance, yDistance, xAmount, yAmount):
-    '''
-    Lay objects out in Grid pattern - x/y rows
-
-    xDistance = 12
-    xDistance = 2
-    xAmount = 3
-    yAmount = 5
-    objs = pm.selected()
-
-    makeGridLayout(pm.selected(), xDistance, yDistance, xAmount, yAmount)
-
-
-    '''
-    x=0
-    y=0
-
-    for obj in objectList:
-        pm.xform(obj, t=(x*xDistance, y*yDistance*-1, 0))
-        x = x+1
-        if(x%xAmount) == 0:
-            y = y + 1
-            x = 0
 
 
 
@@ -3012,37 +2973,7 @@ def separateSelectedShell(obj, index=0):
     return [chip, residual]
 
 
-def separateGeo(objArray = None, geoSuffix = 'geo', grpSuffix = 'grp', grp=1, centerPivot=1):
-    if objArray is None:
-        objArray = pm.selected()
-    for geo in objArray:
-        #p = pm.listRelatives(geo, p=1)[0]
-        if geo.split('_') > 2:
-            basename = geo.rsplit('_', 1)[0]
-        else:
-            basename = geo
-        try:
-            objs = pm.polySeparate(geo, ch=0)
 
-            i=1
-            for obj in objs:
-                obj = pm.rename(obj, '%s%02d_%s'%(basename, i, geoSuffix) )
-
-                if centerPivot == 1:
-                    pm.xform(obj, cp=1)
-
-                if grp ==1:
-                    g = pm.createNode( 'transform', n = '%s%02d_%s'%(basename, i, grpSuffix) )
-
-                    movePivot(sel = [obj, g])
-
-                    pm.parent(g, geo)
-                    pm.parent(obj, g)
-
-                i = i+1
-        except:
-            print 'Skipping %s'%geo
-            pass
 #############################################################
 #snaps objects and skips locked attributes to prevent errors...
 #also this doesnt uses constraints to snap..
