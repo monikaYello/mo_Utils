@@ -2,12 +2,14 @@
 # help#
 #################### HELP ########################
 
-
 help(pm.matchTransform)
 
 # get source #
 import inspect as inspect
 inspect.getsourcefile(pm.matchTransform)
+
+# get mel source #
+whatIs myGlobalProc
 
 
 # grep functions of a module

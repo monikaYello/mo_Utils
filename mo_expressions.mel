@@ -9,7 +9,6 @@ locator1.translateX = $sourceXpos;
 locator1.translateY = $sourceYpos;
 locator1.translateZ = $sourceZpos;
 
-
 ////windshield wiper. sine
 wiper.rx = (sin (.9 *time)*45)+10;
 //speed = how much fast you want() here i have put .9

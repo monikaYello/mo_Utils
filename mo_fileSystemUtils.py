@@ -7,10 +7,6 @@ def getFilesFromFolder(mypath):
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     return onlyfiles
 
-
-import pymel.core as pm
-
-
 # import mo_Utils.mo_fileSystemUtils as sysUtils
 # sysUtils.addScriptPath('D:\Google Drive\PythonScripting\my_autoRigger')
 
