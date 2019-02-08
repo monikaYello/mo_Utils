@@ -7,6 +7,10 @@ reload(mathUtils)
 
 import math
 import time
+# select every N loop
+#polySelectEdgesEveryN "edgeRing" 2
+#polySelectEdgesEveryN "edgeLoop" 2
+
 
 
 # duplicateTransformHierarchy(grp, geoProxy=False)
@@ -726,7 +730,7 @@ def orientedBoundingbox(mesh=None):
 
     if len(mesh) == 0:
         raise RuntimeError("Nothing selected!")
-
+    
     obbBoundBoxPnts = OBB.from_points(mesh)
     obbCube = cmds.polyCube(
         constructionHistory=False, name="pointMethod_GEO")[0]

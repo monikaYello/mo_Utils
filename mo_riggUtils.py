@@ -102,26 +102,6 @@ def createJointsAtPos(targetObjects, chain=False, constrain=False, name=None, su
 		pm.joint(zso=1, ch=1, e=1, oj='xyz', secondaryAxisOrient='ydown')
 
 
-###############################
-## create control at targetPos, constrain target if set to True
-###############################
-def createCtrl(targetPos=False, constrain=False, size=0.5, suffix='ctrl'):
-	if targetPos == False:
-		targetPos = pm.ls(sl=1)
-	for each in targetPos:
-		name = '%s_%s' % (each.name(), suffix)
-		controller = pm.curve(p=[(size, size, size), (size, size, -size), (-size, size, -size), (-size, -size, -size),
-								 (size, -size, -size), (size, size, -size), (-size, size, -size), (-size, size, size),
-								 (size, size, size), (size, -size, size), (size, -size, -size), (-size, -size, -size),
-								 (-size, -size, size), (size, -size, size), (-size, -size, size), (-size, size, size)],
-							  k=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], d=1, name=name)
-		localgrp = pm.group(controller, n='%s_%s' % (each.name(), 'LOCAL'))
-		zerogrp = pm.group(localgrp, n='%s_%s' % (each.name(), 'ZERO'))
-		position = pm.xform(each, q=1, ws=1, rp=1)
-
-		zerogrp.setTranslation(position, ws=True)
-		if constrain == True:
-			pm.parentConstraint(controller, each)
 
 
 ###############################
@@ -518,7 +498,7 @@ def constrainAuto():
 ###############################
 ## create control at targetPos, constrain target if set to True
 ###############################
-def createCtrl(targetPos=False, connect='constraint', shape='box', size=1, color=None, suffix='ctrl'):
+def createCtrl(targetPos=False, connect='constraint', shape='circle', size=1, color=None, suffix='ctrl'):
 	ctrlList = []
 	if targetPos == False:
 		targetPos = pm.ls(sl=1)
