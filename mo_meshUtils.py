@@ -44,6 +44,25 @@ def getFaceCount(obj=None):
         obj = pm.ls(obj)[-1]
     return pm.polyEvaluate(obj, face=True)
 
+def toShell():
+    '''
+    expands selection to shell, of current selected face/vertex
+    '''
+    pm.mel.polySelectBorderShell(0)
+    #pm.mel.PolySelectConvert(3) convert to vertices
+
+
+def selectRandomFaces(obj, amount=100):
+    import pymel.core as pm
+    import random
+    obj = pm.ls(obj)[0]
+    numberOfFaces = pm.polyEvaluate(pm.selected()[0],  face=1)
+    pm.select(clear=1)
+    for i in range(amount): 
+        randFace = random.randint(0,numberOfFaces)
+        print randFace
+        pm.select('%s.f[%s]'%(obj, randFace), add=1)
+
 
 def duplicateTransformHierarchy(grp, geoProxy=False):
     '''
