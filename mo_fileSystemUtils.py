@@ -157,11 +157,19 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
 
 def tempExportSelected(save_name='tempExport', path="G:/temp"):
     ext = pm.sceneName().ext
+    print 'ext is %s' % ext
+    print 'path is %s' % path
+    if ext == '.mb':
+        extType = 'mayaBinary'
+    else:
+        extType = 'mayaAscii'
     pm.cmds.file("%s/%s%s" % (path, save_name, ext), pr=1,
-                 typ="mayaAscii", force=1, options="v=0;", es=1)
+                 typ=extType, force=1, options="v=0;", es=1)
 
 
 def tempImport(save_name='tempExport', path="G:/temp"):
     ext = pm.sceneName().ext
-    pm.cmds.file("%s/%s%s" % (path, save_name, ext), pr=1, ignoreVersion=1, i=1, type="mayaAscii",
+    print 'ext is %s' % ext
+
+    pm.cmds.file("%s/%s%s" % (path, save_name, ext), pr=1, ignoreVersion=1, i=1,
                  namespace=":", ra=True, mergeNamespacesOnClash=True, options="v=0;")

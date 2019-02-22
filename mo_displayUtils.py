@@ -258,3 +258,31 @@ def toggleCurvesVisibility():
         pm.modelEditor(activeview, e=1, nurbsCurves=0)
     else:
         pm.modelEditor(activeview, e=1, nurbsCurves=1)
+
+
+def changeASSmode(obj_list='all', mode=0):
+    '''
+    set display types of each arnoldStandin in obj list to defined mode
+
+    modes
+    0   boundingbox
+    1   boundingbox per object
+    3   wireframe 
+    4   polywire
+    5   pointcloud
+    6   shaded
+
+    obj_list = pm.ls(sl=True)
+    '''
+    if obj_list == 'all':
+        obj_list  = pm.ls(type=pm.nodetypes.AiStandIn)
+    
+    for obj in obj_list:
+        print obj
+        try: # get shape and set
+            obj.getShape().mode.set(mode)
+        except:
+            try: # have shape and set
+                obj.getShape().mode.set(mode)
+            except:
+                continue

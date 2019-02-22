@@ -1,3 +1,4 @@
+import pymel.core as pm
 import maya.mel as mm
 import maya.cmds as mc
 
@@ -878,5 +879,23 @@ def removeConnectAttrEdits(nodeList=''):
 		mm.eval('referenceEdit -failedEdits true -successfulEdits true -editCommand disconnectAttr -removeEdits '+node)
 	
 	# Reload Reference
-	if refLoaded: mc.file(loadReference=refNode)
+	if refLoaded: mc.file(loadReference=refNode)\
+
+
+def duplicateReference():
+	'''
+	Duplicate Reference and snap it to position of original
+	'''
+	item = pm.selected()[0]
+	if pm.referenceQuery(item, inr=True)
+		ref_node = pm.referenceQuery(item, rfn=True)
+		ref_path = pm.FileReference(ref_node).path
+
+		ref_ns = pm.referenceQuery(item, ns=True)
+		ref_dup = pm.createReference(ref_path, ns=ref_ns + '1')
+		# get root node
+		ref_dup.selectAll()
+		root_node = pm.selected()[0].root()
+		# snap
+		pm.delete(pm.parentConstraint(item, root_node, mo=0))
 

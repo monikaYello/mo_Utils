@@ -963,3 +963,18 @@ def separateGeo(objArray = None, geoSuffix = 'geo', grpSuffix = 'grp', grp=1, ce
             pass
     pm.select(objs)
     return objs
+
+
+def exportASS(obj_to_export):
+    '''
+    Export as ass files. Name is that of node name. Save into current scene folder.  
+    '''
+    #obj_to_export = pm.ls('Aspen_Quaking_Field_*_lo', type='transform')
+    import pymel.core as pm
+    dir = pm.sceneName().parent
+    
+    for obj in obj_to_export:
+        pm.select(obj)
+        obj_name = obj.nodeName()
+        pm.arnoldExportAss(f="%s/%s.ass"%(dir, obj_name), mask=2297, lightLinks=0, s=1, boundingBox=1, shadowLinks=0)
+
