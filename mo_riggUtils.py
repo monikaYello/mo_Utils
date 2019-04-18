@@ -4,7 +4,7 @@ import mo_Utils.mo_curveLib as mo_curveLib
 import mo_Utils.mo_mathUtils as mathUtils
 import mo_stringUtils as mo_stringUtils
 
-reload(mathUtils)
+reload(mo_curveLib)
 
 _logger = logging.getLogger(__name__)
 
@@ -298,13 +298,13 @@ def vecViz(vector, tfm, name="vectorPoint"):
 	pm.delete(grp)
 
 def vecVizObjects(objList,  name='vectorPoint'):
-    '''
-    need two objects, 1 for vector, 2 for baase
-    '''
-    if len(objList) == 0:
-        return 'need at least 2 objects'
-    vector = objList[0].getTranslation()
-    return vecViz(vector, tfm=objList[1], name=name)
+	'''
+	need two objects, 1 for vector, 2 for baase
+	'''
+	if len(objList) == 0:
+		return 'need at least 2 objects'
+	vector = objList[0].getTranslation()
+	return vecViz(vector, tfm=objList[1], name=name)
 
 
 
@@ -354,13 +354,13 @@ def addSkinAndBlendshape(objList=None):
 def cleanUpAttr(sel=None, listAttr=['sx', 'sy', 'sz', 'v'], l=1, k=1, cb=0):
 	'''
 	Args:
-	    sel:
-	    listAttr: ['sx', 'sy', 'sz', 'v']
-	    l: 1 lock attr , l=0 unlock attr
-	    k: 1  show attr ,k= 0 hide attr
-	    cb: 1 nonkeyable ,cb =0 make atte keyable
+		sel:
+		listAttr: ['sx', 'sy', 'sz', 'v']
+		l: 1 lock attr , l=0 unlock attr
+		k: 1  show attr ,k= 0 hide attr
+		cb: 1 nonkeyable ,cb =0 make atte keyable
 	Returns:
-    riggUtil.cleanUpAttr(sel=[obj],listAttr=['sx', 'sy', 'sz', 'v'],l=0,k=0,cb=0)
+	riggUtil.cleanUpAttr(sel=[obj],listAttr=['sx', 'sy', 'sz', 'v'],l=0,k=0,cb=0)
 	'''
 	if sel == None:
 		sel = pm.ls(sl=1)
@@ -377,7 +377,7 @@ def cleanTransforms(objArray=None):
 	'''
 	CutKey and delete Constraint
 	Args:
-	    objArray:
+		objArray:
 	Returns:
 	'''
 	if objArray is None:
@@ -414,6 +414,31 @@ def constrainAuto():
 	c1 = pm.ls(sl=1)[0:-1]
 	slave = pm.ls(sl=1)[-1].listRelatives(parent=1)
 	pm.parentConstraint(c1, slave)
+
+###############################
+## create control at targetPos, constrain target if set to True
+###############################
+def createCtrl(targetPos=False, constrain=False, shape='box', size=1, color=None, suffix='ctrl'):
+	if targetPos == False:
+		targetPos = pm.ls(sl=1)
+	for each in targetPos:
+		name = '%s_%s'%(each.name(), suffix)
+		controller = mo_curveLib.createShapeCtrl(shape, name, scale=size)
+		#controller = pm.curve(p=[(size, size, size), (size, size, -size), (-size, size, -size), (-size, -size, -size), (size, -size, -size), (size, size, -size), (-size, size, -size), (-size, size, size), (size, size, size), (size, -size, size), (size, -size, -size), (-size, -size, -size), (-size, -size, size), (size, -size, size), (-size, -size, size), (-size, size, size)],k=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],d=1,name=name)
+		localgrp = pm.group(controller, n='%s_%s'%(each.name(), 'LOCAL'))
+		zerogrp = pm.group(localgrp, n='%s_%s'%(each.name(), 'ZERO'))
+		position = pm.xform(each,q=1,ws=1,rp=1)
+		
+		zerogrp.setTranslation(position, ws=True)
+		pm.delete(pm.orientConstraint(each, zerogrp, weight=1, offset=(0, 0, 0)))
+		
+		if constrain == True:
+				pm.parentConstraint(controller, each)
+				
+		if color is not None:
+			 mo_curveLib.colorOverride(controller, color)
+
+
 
 
 ###############################
@@ -646,8 +671,8 @@ def grpIn(grpName, obj):
 	makes creates and adds objects to a grp
 	riggUtils.grpIn('myGrp', 'objA')
 	Args:
-	    grpName:
-	    obj:
+		grpName:
+		obj:
 
 	Returns:
 
@@ -686,10 +711,10 @@ def lockGrpCtrl(ctrl=None, lock=1, hide=1):
 
 def addGimbal(ctrl=None):
 	"""
-    Creates an offset child ctrl by duplicating ctrl
-    Connect visibility to attribute gimal_vis
+	Creates an offset child ctrl by duplicating ctrl
+	Connect visibility to attribute gimal_vis
 	Args:
-	    ctrl:
+		ctrl:
 	"""
 	ctrl = pm.ls(ctrl)[-1]
 	_logger.debug( 'Adding gimbal to %s'%ctrl)
@@ -1130,7 +1155,7 @@ class Ctrl():
 				if child.split('_')[-1] == 'gimbalCtrl':
 					gimbal = child.name()
 
-	def createOnObj(self, obj=False, constrain=False, shape='box', size=1, color=None, suffix='ctrl'):
+	def createOnObj(self, obj=False, constrain=False, shape='box', size=1, color=(), suffix='ctrl'):
 		if obj == False:
 			obj = pm.ls(sl=1)[-1]
 		name = '%s_%s' % (obj.name(), suffix)
@@ -1145,9 +1170,11 @@ class Ctrl():
 
 		if constrain == True:
 			pm.parentConstraint(controller, obj)
-
-		if color is not None:
-			mo_curveLib.colorOverride(controller, color)
+		print('color is %s'%color)
+		if len(color)>0:
+			controller = pm.PyNode(controller)
+			print('controller is %s'%controller)
+			mo_curveLib.setRGBColor(controller.getShape(), color)
 
 	def group(self, ctrl=None):
 		cZero = grpCtrl(ctrl)
@@ -1308,8 +1335,8 @@ def poleVectorPositionMvector(helpers, poleVectorDistance=5.0):
 
 	makeIkPlaneSetup(cmds.ls(sl=True))
 	Args:
-	    helpers: shoulder, ellbow and wrist joint
-	    poleVectorDistance:
+		helpers: shoulder, ellbow and wrist joint
+		poleVectorDistance:
 
 	Returns:
 

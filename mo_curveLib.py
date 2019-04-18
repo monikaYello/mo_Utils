@@ -522,7 +522,18 @@ def colorOverride(color, objs=None):
         obj.overrideColor.set(colorid)
         obj.getShape().overrideEnabled.set(True)
         obj.getShape().overrideColor.set(colorid)
+
+def setRGBColor(ctrl, color = (1,1,1)):
     
+    rgb = ("R","G","B")
+    
+    pm.setAttr(ctrl + ".overrideEnabled",1)
+    pm.setAttr(ctrl + ".overrideRGBColors",1)
+    
+    for channel, color in zip(rgb, color):
+        
+        pm.setAttr(ctrl + ".overrideColor%s" %channel, color)
+
 def createBoundingBox(name, sel = None):
     if sel == None:
          sel = pm.selected()
