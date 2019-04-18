@@ -136,7 +136,7 @@ def movePivot(objects, moveto="zero"):
                     object + ".rotatePivot", absolute=True)
         if moveto == "minY":
             bbox = pm.exactWorldBoundingBox(object)
-            currentPivot = pm.xform(object, q=1, rp=1)
+            currentPivot = pm.xform(object, q=1, rp=1, ws=1)
             #bottom = [(bbox[0] + bbox[3]) / 2, bbox[1], (bbox[2] + bbox[5]) / 2]
             bottom = [currentPivot[0], bbox[1], currentPivot[2]]
             pm.xform(object, piv=bottom, ws=True)
@@ -151,6 +151,7 @@ def moveToZero(objs, freezeTransform=1):
         if (freezeTransform):
             pm.makeIdentity(apply=True, t=1, r=1, s=1, pn=1)
     pm.delete(loc)
+    pm.select(objs)
 
 
 def layoutGrid(objectList, xDistance, yDistance, xAmount, yAmount):
@@ -176,3 +177,8 @@ def layoutGrid(objectList, xDistance, yDistance, xAmount, yAmount):
         if(x % xAmount) == 0:
             y = y + 1
             x = 0
+
+
+def pip():
+    toParent = pm.selected()[-1].listRelatives(p=1)[0]
+    pm.parent(pm.selected()[:-10], )

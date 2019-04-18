@@ -1245,6 +1245,9 @@ def findShellVtxs(mesh):
 
     return shellList
 
+
+
+
 def createJntByShell(mesh, skin=1):
     bn = "%s"%mesh
     numberOfShells = pm.polyEvaluate(mesh,  shell=1)

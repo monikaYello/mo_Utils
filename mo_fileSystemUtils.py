@@ -70,7 +70,7 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
     import os
     if not os.path.isfile(path_to_userprefs):
         return pm.warning('Error. File not found (%s). Windows usually '
-                          '"C:/Users/username/Documents/maya/20xx/prefs/userPrefs.mel"'%path_to_userprefs)
+                          '"C:/Users/username/Documents/maya/20xx/prefs/userPrefs.mel"' % path_to_userprefs)
 
     # start and end line to filter search
     startline = searchlines[0]
@@ -79,7 +79,7 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
     filepathnew = filepath.split('.mel')[0] + "New.mel"
 
     # this can be turned off for debugging and will leave the filtered file as filepath New.mel
-    replace_with_backup=True
+    replace_with_backup = True
 
     # create new file
     open(filepathnew, "w+").close()
@@ -103,10 +103,11 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
                         print 'adding' + shelf_file
                         shelf_files.append(shelf_file)
                     else:
-                        skip_indices.append(int(filter(str.isdigit, words[1])))  # add skip number
+                        # add skip number
+                        skip_indices.append(int(filter(str.isdigit, words[1])))
 
         # if no items were added to skip_indices, there i nothing to remove so we exit
-        if len(skip_indices) == 0 :
+        if len(skip_indices) == 0:
             print 'No duplicate entries found. Try deleting and restoring the affected shelf manually.'
             os.remove(filepathnew)
             return False
@@ -147,17 +148,10 @@ def clean_disappearingshelf_userprefs(path_to_userprefs, searchlines=[1000, 3000
         os.rename(filepathnew, filepath)
 
     print 'Done. Removed %s duplicates. \n' \
-          'New file: %s \nOld file backup: %s'%(len(skip_indices), filepath, filepathold)
+          'New file: %s \nOld file backup: %s' % (
+              len(skip_indices), filepath, filepathold)
 
     return True
-
-
-def tempExportSelected(save_name = 'tempExport', path = "U:/personal/Monika/tempExport" ):
-    pm.cmds.file("%s/%s.ma"%(path,save_name), pr=1, typ="mayaAscii", force=1, options="v=0;", es=1)
-
-def tempImport( save_name = 'tempExport', path = "U:/personal/Monika/tempExport"):
-    pm.cmds.file("%s/%s.ma"%(path,save_name), pr=1, ignoreVersion=1, i=1, type="mayaAscii",
-              namespace=":", ra=True, mergeNamespacesOnClash=True, options="v=0;")
 
 def transferShelfLowerVersion(mayashelfpath = 'C:/Users/dellPC/Documents/maya/2018/prefs/shelves/', shelfname = 'shelf_mo_Rig_shf', fromversion='2018', toversion='2016'):
     import os
@@ -174,3 +168,21 @@ def transferShelfLowerVersion(mayashelfpath = 'C:/Users/dellPC/Documents/maya/20
         
         if not skipline:
             newFile.write(line)
+def tempExportSelected(save_name='tempExport', path="G:/temp"):
+    ext = pm.sceneName().ext
+    print 'ext is %s' % ext
+    print 'path is %s' % path
+    if ext == '.mb':
+        extType = 'mayaBinary'
+    else:
+        extType = 'mayaAscii'
+    pm.cmds.file("%s/%s%s" % (path, save_name, ext), pr=1,
+                 typ=extType, force=1, options="v=0;", es=1)
+
+
+def tempImport(save_name='tempExport', path="G:/temp"):
+    ext = pm.sceneName().ext
+    print 'ext is %s' % ext
+
+    pm.cmds.file("%s/%s%s" % (path, save_name, ext), pr=1, ignoreVersion=1, i=1,
+                 namespace=":", ra=True, mergeNamespacesOnClash=True, options="v=0;")

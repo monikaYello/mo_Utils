@@ -7,6 +7,10 @@ reload(mathUtils)
 
 import math
 import time
+# select every N loop
+#polySelectEdgesEveryN "edgeRing" 2
+#polySelectEdgesEveryN "edgeLoop" 2
+
 
 
 # duplicateTransformHierarchy(grp, geoProxy=False)
@@ -39,6 +43,25 @@ def getFaceCount(obj=None):
     else:
         obj = pm.ls(obj)[-1]
     return pm.polyEvaluate(obj, face=True)
+
+def toShell():
+    '''
+    expands selection to shell, of current selected face/vertex
+    '''
+    pm.mel.polySelectBorderShell(0)
+    #pm.mel.PolySelectConvert(3) convert to vertices
+
+
+def selectRandomFaces(obj, amount=100):
+    import pymel.core as pm
+    import random
+    obj = pm.ls(obj)[0]
+    numberOfFaces = pm.polyEvaluate(pm.selected()[0],  face=1)
+    pm.select(clear=1)
+    for i in range(amount): 
+        randFace = random.randint(0,numberOfFaces)
+        print randFace
+        pm.select('%s.f[%s]'%(obj, randFace), add=1)
 
 
 def duplicateTransformHierarchy(grp, geoProxy=False):
@@ -726,7 +749,7 @@ def orientedBoundingbox(mesh=None):
 
     if len(mesh) == 0:
         raise RuntimeError("Nothing selected!")
-
+    
     obbBoundBoxPnts = OBB.from_points(mesh)
     obbCube = cmds.polyCube(
         constructionHistory=False, name="pointMethod_GEO")[0]
@@ -940,3 +963,18 @@ def separateGeo(objArray = None, geoSuffix = 'geo', grpSuffix = 'grp', grp=1, ce
             pass
     pm.select(objs)
     return objs
+
+
+def exportASS(obj_to_export):
+    '''
+    Export as ass files. Name is that of node name. Save into current scene folder.  
+    '''
+    #obj_to_export = pm.ls('Aspen_Quaking_Field_*_lo', type='transform')
+    import pymel.core as pm
+    dir = pm.sceneName().parent
+    
+    for obj in obj_to_export:
+        pm.select(obj)
+        obj_name = obj.nodeName()
+        pm.arnoldExportAss(f="%s/%s.ass"%(dir, obj_name), mask=2297, lightLinks=0, s=1, boundingBox=1, shadowLinks=0)
+
