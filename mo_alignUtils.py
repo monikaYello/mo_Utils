@@ -140,6 +140,18 @@ def movePivot(objects, moveto="zero"):
             #bottom = [(bbox[0] + bbox[3]) / 2, bbox[1], (bbox[2] + bbox[5]) / 2]
             bottom = [currentPivot[0], bbox[1], currentPivot[2]]
             pm.xform(object, piv=bottom, ws=True)
+        if moveto == "minX":
+            bbox = pm.exactWorldBoundingBox(object)
+            currentPivot = pm.xform(object, q=1, rp=1, ws=1)
+            #bottom = [(bbox[0] + bbox[3]) / 2, bbox[1], (bbox[2] + bbox[5]) / 2]
+            bottom = [bbox[0], currentPivot[1], currentPivot[2]]
+            pm.xform(object, piv=bottom, ws=True)
+        if moveto == "minZ":
+            bbox = pm.exactWorldBoundingBox(object)
+            currentPivot = pm.xform(object, q=1, rp=1, ws=1)
+            #bottom = [(bbox[0] + bbox[3]) / 2, bbox[1], (bbox[2] + bbox[5]) / 2]
+            bottom = [currentPivot[0], currentPivot[1], bbox[2]]
+            pm.xform(object, piv=bottom, ws=True)
         if moveto == "center":
             pm.xform(object, cp=1)
 
