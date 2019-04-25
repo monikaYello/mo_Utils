@@ -1131,6 +1131,7 @@ class Ctrl():
 		self.gimbal = None
 		self.size = ''
 		self.color = ''
+		self.target = ''
 
 	def define(self, ctrl):
 		ctrl = pm.ls(ctrl)[-1]  # pynode
@@ -1154,6 +1155,7 @@ class Ctrl():
 			for child in children:
 				if child.split('_')[-1] == 'gimbalCtrl':
 					gimbal = child.name()
+					
 
 	def createOnObj(self, obj=False, constrain=False, shape='box', size=1, color=(), suffix='ctrl'):
 		if obj == False:
@@ -1169,13 +1171,29 @@ class Ctrl():
 		pm.delete(pm.orientConstraint(obj, zerogrp, weight=1, offset=(0, 0, 0)))
 
 		if constrain == True:
-			pm.parentConstraint(controller, obj)
+			pm.parentConstraint(controller, obj, n=name+'_parentConst', mo=1)
+			pm.scaleConstraint(controller, obj, n=name+'_scaleConst', mo=1)
 		print('color is %s'%color)
 		if len(color)>0:
 			controller = pm.PyNode(controller)
 			print('controller is %s'%controller)
 			mo_curveLib.setRGBColor(controller.getShape(), color)
 
+	def connect(self):
+		target = self.name.replace('_ctrl', '')
+		controller = self.name
+		if pm.objExists(target):
+			pm.parentConstraint(controller, target, n=self.name+'_parentConst', mo=1)
+			pm.scaleConstraint(controller, target, n=self.name+'_scaleConst', mo=1)
+		else:
+			print 'Error conencting. Target object not found'
+	def disconnect(self):
+		target = self.name.replace('_ctrl', '')
+		controller = self.name
+		if pm.objExists(target):
+			deleteChildrenConstraints(target)
+		else:
+			print 'Error diconencting. Target object not found'
 	def group(self, ctrl=None):
 		cZero = grpCtrl(ctrl)
 		return cZero

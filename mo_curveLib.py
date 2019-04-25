@@ -32,23 +32,17 @@ def createShapeCtrl(type, name='C_test_ctrl', scale=1, color='yellow'):
     elif(type == 'crossPaddle'):
         pointPosList = [(0, 0, 0), (0, 0, 0), (0, 1.26, 0), (0, 1.45, 0.45), (0, 1.89, 0.62), (0, 2.35, 0.45), (0, 2.53, -0.013), (0, 2.35, -0.45), (0, 1.90, -0.64), (0, 1.45, -0.45), (0, 1.26, 0), (0, 1.45, 0.45), (0, 2.35, -0.45), (0, 1.90, -0.64), (0, 1.45, -0.45), (0, 2.35, 0.45)]
         controller= pm.curve(p=pointPosList, n=name, k=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], d=1)
-
-
     elif(type == "arrow"):
         controller=Shapes().arrow(name)
-
     elif(type == "PLACER"):
         controller=Shapes().placer()
-
     elif(type == "MOVER"):
         pointPosList =[pm.dt.Point([-3.360645, 0.0, -3.360645]), pm.dt.Point([-3.37686, 0.0, -3.34443]), pm.dt.Point([-4.247985, 0.0, -2.45985]), pm.dt.Point([-5.257455, 0.0, 0.023115]), pm.dt.Point([-3.724275, 0.0, 3.724275]), pm.dt.Point([0.0, 0.0, 5.267115]), pm.dt.Point([3.724275, 0.0, 3.724275]), pm.dt.Point([5.258145, 0.0, 0.02139]), pm.dt.Point([4.247295, 0.0, -2.461575]), pm.dt.Point([3.375825, 0.0, -3.345465]), pm.dt.Point([3.360645, 0.0, -3.360645]), pm.dt.Point([3.349605, 0.0, -3.349605]), pm.dt.Point([3.186765, 0.0, -3.18711]), pm.dt.Point([3.014265, 0.0, -3.0153]), pm.dt.Point([2.85315, 0.0, -2.85453]), pm.dt.Point([2.84349, 0.0, -2.84487]), pm.dt.Point([2.85315, 0.0, -2.834865]), pm.dt.Point([3.59076, 0.0, -2.08656]), pm.dt.Point([4.45188, 0.0, 0.014145]), pm.dt.Point([3.150885, 0.0, 3.150885]), pm.dt.Point([0.0, 0.0, 4.45671]), pm.dt.Point([-3.150885, 0.0, 3.150885]), pm.dt.Point([-4.448775, 0.0, 0.021735]), pm.dt.Point([-3.593865, 0.0, -2.07897]), pm.dt.Point([-2.85867, 0.0, -2.829345]), pm.dt.Point([-2.84349, 0.0, -2.84487]), pm.dt.Point([-2.853495, 0.0, -2.854875]), pm.dt.Point([-3.013575, 0.0, -3.014265]), pm.dt.Point([-3.18573, 0.0, -3.18642]), pm.dt.Point([-3.348225, 0.0, -3.348225])]
         controller = pm.curve(p=pointPosList, name=name, d=3)
-
     elif(type == "DIRECTION"):
         pointPosList = [pm.dt.Point([-2.4, 0.0, -2.4]), pm.dt.Point([2.4, 0.0, -2.4]), pm.dt.Point([2.4, 0.0, 2.4]), pm.dt.Point([0.0, 0.0, 3.6]), pm.dt.Point([-2.4, 0.0, 2.4])]
         controller = pm.curve(p=pointPosList, name=name, d=1)
         pm.closeCurve(name, ps=1, ch=1, bb=0.5, bki=0, p=0.1, rpo=1)
-
     elif(type == "squareAxis45"):
         pointPosList = [pm.dt.Point([-0.0183221732195, 0.0220372618933, -0.0490237893162]),
           pm.dt.Point([6.98167782678, 7.02203726189, -0.0490237893162]),
