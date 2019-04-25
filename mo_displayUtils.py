@@ -84,7 +84,6 @@ def deleteRefEdits(refNodes=None, searchStrings=['SG', 'material']):
             if namespace == refNode.namespace:
                 refFound = refNode
         if refNode == False: print 'Error: No Reference Node found. Select either referenced object or pass namespace'
-             
         refEdits = refFound.getReferenceEdits()  
         rebuild = []
         
@@ -181,7 +180,7 @@ def layoutCleanOutliner(name='cleanPersp/Outliner'):
     '''
 
     import mo_Utils.mo_displayUtil as mo_displayUtil
-    mo_displayUtil.layoutCleanOutliner()
+    mo_displayUtil.customScriptLayout()
     '''
     closeAllFloatingWindows()
     try:
@@ -231,55 +230,39 @@ def layoutCleanTrak(name='cleanPersp/Outliner'):
     #pm.deleteUI(configName, panel=1)
 
 
-def viewportSnapshot(name=None, savelocation = None):
-    #Import api modules
-    import maya.OpenMaya as api
-    import maya.OpenMayaUI as apiUI
-    
-    if savelocation is None:
-       savelocation = pm.workspace.getcwd() 
-    if name is None:
-       name='MayaViewportSnapshot'
-    #Grab the last active 3d viewport
-    view = apiUI.M3dView.active3dView()
-     
-    #read the color buffer from the view, and save the MImage to disk
-    image = api.MImage()
-    view.readColorBuffer(image, True)
-    image.writeToFile('%s%s.jpg'%(savelocation,name), 'jpg')
-    print 'Snapshot saved in %s%s.jpg'%(savelocation,name)
-
-
 def toggleFlatShaded():
     activeview = pm.getPanel(up=1)
-    if 'modelPanel' in activeview:
-        nurbsCurvesstatus = pm.modelEditor(activeview, q=1, dl=1)
+    nurbsCurvesstatus = pm.modelEditor(activeview, q=1, dl=1)
 
-        if nurbsCurvesstatus == "default":
-            pm.modelEditor(activeview, dl="flat", e=1)
-        else:
-            pm.modelEditor(activeview, dl="default", e=1)
+    if nurbsCurvesstatus == "default":
+        pm.modelEditor(activeview, dl="flat", e=1)
+    else:
+        pm.modelEditor(activeview, dl="default", e=1)
 
 def toggleGeometryVisibility():
-    activeview=pm.getPanel(wf=1)
-    if 'modelPanel' in activeview:
-        nurbsCurvesstatus=pm.modelEditor(activeview, q=1, polymeshes=1)
+    activeview=pm.getPanel(up=1)
+    nurbsCurvesstatus=pm.modelEditor(activeview, q=1, polymeshes=1)
 
-        if nurbsCurvesstatus:
-            pm.modelEditor(activeview, e=1, polymeshes=0)
-        else:
-            pm.modelEditor(activeview, e=1, polymeshes=1)
+    if nurbsCurvesstatus:
+        pm.modelEditor(activeview, e=1, polymeshes=0)
+    else:
+        pm.modelEditor(activeview, e=1, polymeshes=1)
 
 
 def toggleCurvesVisibility():
-    activeview = pm.getPanel(wf=1)
-    if 'modelPanel' in activeview:
-        nurbsCurvesstatus = pm.modelEditor(activeview, q=1, nurbsCurves=1)
+    activeview = pm.getPanel(up=1)
+    nurbsCurvesstatus = pm.modelEditor(activeview, q=1, nurbsCurves=1)
 
     if nurbsCurvesstatus:
         pm.modelEditor(activeview, e=1, nurbsCurves=0)
     else:
         pm.modelEditor(activeview, e=1, nurbsCurves=1)
+
+
+def selectAllAss():
+    
+    aiStandins = pm.select(pm.ls(type=pm.nodetypes.AiStandIn)
+    return aiStandins
 
 
 def changeASSmode(obj_list='all', mode=0):
