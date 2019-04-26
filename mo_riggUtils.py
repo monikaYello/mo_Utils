@@ -862,18 +862,27 @@ def orientJointWarning(joint, rotationOrder, axis, firstChar):
 ###############################
 ## scale shape node by factor
 ###############################
-def scaleShape(factor, objs=None):
+def scaleShape(factor, objs=None, axis='XYZ'):
 	if objs == None:
 		if len(pm.ls(sl=1)) < 1:
 			return False
 		objs = pm.ls(sl=1)
+	factors = [factor, factor, factor]
+	print 'Scaling: Axis is %s'%axis
+	if axis != 'XYZ':
+		if 'X' not in axis:
+			factors[1] = 1
+		if 'Y' not in axis:
+			factors[2] = 1
+		if 'Z' not in axis:
+			factors[0] = 1
 	for obj in objs:
 		if obj.type() == 'transform':
 			shapenode = obj.getShape()
 		else:
 			shapenode = obj
 		pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
-		pm.scale(factor, factor, factor)
+		pm.scale(factors[0], factors[1], factors[2])
 	pm.select(objs)
 
 
