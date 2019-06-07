@@ -260,8 +260,7 @@ def toggleCurvesVisibility():
 
 
 def selectAllAss():
-    
-    aiStandins = pm.select(pm.ls(type=pm.nodetypes.AiStandIn)
+    aiStandins = pm.select(pm.ls(type=pm.nodetypes.AiStandIn))
     return aiStandins
 
 
@@ -288,6 +287,6 @@ def changeASSmode(obj_list='all', mode=0):
             obj.getShape().mode.set(mode)
         except:
             try: # have shape and set
-                obj.getShape().mode.set(mode)
+                obj.mode.set(mode)
             except:
                 continue
