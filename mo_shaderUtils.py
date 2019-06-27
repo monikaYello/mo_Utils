@@ -1,6 +1,5 @@
 import pymel.core as pm
 import re
-
 '''
 # Convert all shaders to aiStandard
 
@@ -9,15 +8,22 @@ mrShadersToArnold.py
 
 '''
 
+
 def createMaterial(name, color, shader):
     newNode = pm.shadingNode(shader, asShader=True, name=name)
     print 'new node created'
 
-
-    pm.sets(renderable=True, noSurfaceShader=True, empty=True, name=newNode + 'SG')
+    pm.sets(renderable=True,
+            noSurfaceShader=True,
+            empty=True,
+            name=newNode + 'SG')
     print 'sets'
 
-    pm.setAttr(newNode + '.color', color[0], color[1], color[2], type='double3')
+    pm.setAttr(newNode + '.color',
+               color[0],
+               color[1],
+               color[2],
+               type='double3')
     pm.connectAttr(newNode + '.outColor', newNode + 'SG.surfaceShader')
     return newNode
 
@@ -28,11 +34,12 @@ def assignMaterial(name, target):
 
 def assignNewMaterial(name, color, shader, target):
     if pm.objExists(name):
-        pm.warning('Material with name %s already exists. Assigning existing.' % name)
+        pm.warning(
+            'Material with name %s already exists. Assigning existing.' % name)
         assignMaterial(name, target)
         return
     node = createMaterial(name, color, shader)
-    print 'assigning %s'%node
+    print 'assigning %s' % node
     print 'target %s' % target
     assignMaterial(node, target)
 
@@ -49,14 +56,17 @@ def attachAODiffuse(shaders=None, samples=32, f=0):
         if pm.objExists('occlusionShader'):
             occ = 'occlusionShader'
         else:
-            occ = pm.mel.mrCreateCustomNode('-asTexture', "", 'mib_amb_occlusion')
+            occ = pm.mel.mrCreateCustomNode('-asTexture', "",
+                                            'mib_amb_occlusion')
             occ = pm.rename(occ, 'occlusionShader')
             pm.setAttr("%s.samples" % occ, samples)
             pm.setAttr("%s.max_distance" % occ, 50)
         if pm.objExists('occlusionShaderLuminance'):
             luminance = 'occlusionShaderLuminance'
         else:
-            luminance = pm.shadingNode('luminance', asUtility=1, name='occlusionShaderLuminance')
+            luminance = pm.shadingNode('luminance',
+                                       asUtility=1,
+                                       name='occlusionShaderLuminance')
 
         pm.connectAttr('%s.outValue' % occ, '%s.value' % luminance, f=1)
         pm.connectAttr('%s.outValue' % luminance, '%s.diffuse' % shader, f=1)
@@ -77,34 +87,36 @@ def mentalraySetupSoftblast():
 
 
 class Colour(pm.dt.Vector):
-    NAMED_PRESETS = {"active": (0.26, 1, 0.64),
-                     "black": (0, 0, 0),
-                     "white": (1, 1, 1),
-                     "grey": (.5, .5, .5),
-                     "lightgrey": (.7, .7, .7),
-                     "darkgrey": (.25, .25, .25),
-                     "red": (1, 0, 0),
-                     "lightred": (1, .5, 1),
-                     "peach": (1, .5, .5),
-                     "darkred": (.6, 0, 0),
-                     "orange": (1., .5, 0),
-                     "lightorange": (1, .7, .1),
-                     "darkorange": (.7, .25, 0),
-                     "yellow": (1, 1, 0),
-                     "lightyellow": (1, 1, .5),
-                     "darkyellow": (.8, .8, 0.),
-                     "green": (0, 1, 0),
-                     "lightgreen": (.4, 1, .2),
-                     "darkgreen": (0, .5, 0),
-                     "blue": (0, 0, 1),
-                     "lightblue": (.4, .55, 1),
-                     "darkblue": (0, 0, .4),
-                     "purple": (.7, 0, 1),
-                     "lightpurple": (.8, .5, 1),
-                     "darkpurple": (.375, 0, .5),
-                     "brown": (.57, .49, .39),
-                     "lightbrown": (.76, .64, .5),
-                     "darkbrown": (.37, .28, .17)}
+    NAMED_PRESETS = {
+        "active": (0.26, 1, 0.64),
+        "black": (0, 0, 0),
+        "white": (1, 1, 1),
+        "grey": (.5, .5, .5),
+        "lightgrey": (.7, .7, .7),
+        "darkgrey": (.25, .25, .25),
+        "red": (1, 0, 0),
+        "lightred": (1, .5, 1),
+        "peach": (1, .5, .5),
+        "darkred": (.6, 0, 0),
+        "orange": (1., .5, 0),
+        "lightorange": (1, .7, .1),
+        "darkorange": (.7, .25, 0),
+        "yellow": (1, 1, 0),
+        "lightyellow": (1, 1, .5),
+        "darkyellow": (.8, .8, 0.),
+        "green": (0, 1, 0),
+        "lightgreen": (.4, 1, .2),
+        "darkgreen": (0, .5, 0),
+        "blue": (0, 0, 1),
+        "lightblue": (.4, .55, 1),
+        "darkblue": (0, 0, .4),
+        "purple": (.7, 0, 1),
+        "lightpurple": (.8, .5, 1),
+        "darkpurple": (.375, 0, .5),
+        "brown": (.57, .49, .39),
+        "lightbrown": (.76, .64, .5),
+        "darkbrown": (.37, .28, .17)
+    }
 
     NAMED_PRESETS['highlight'] = NAMED_PRESETS['active']
     NAMED_PRESETS['pink'] = NAMED_PRESETS['lightred']
@@ -219,48 +231,96 @@ def disconnectShaders(objArray=None):
         #selection is not mesh. search hierarchy
         else:
             shapeNodes = shapeNodes + (pm.ls(obj, dag=1, ap=1, type='mesh'))
-        if shapeNodes ==[]:
-            print 'Warning: Select either mesh or transform nodes with valid shapes. %s'%(obj)
+        if shapeNodes == []:
+            print 'Warning: Select either mesh or transform nodes with valid shapes. %s' % (
+                obj)
             #return False
         print shapeNodes
         #for all shape nodes
         for shapeNode in shapeNodes:
             conns = pm.listConnections(shapeNode)
-            plugs = pm.listConnections(shapeNode, type='shadingEngine', connections=True)
+            plugs = pm.listConnections(shapeNode,
+                                       type='shadingEngine',
+                                       connections=True)
             for conn in conns:
                 if conn.type() == 'shadingEngine':
-                    print 'Disconnecting shader engine: %s >>> %s'%(obj, conn)
+                    print 'Disconnecting shader engine: %s >>> %s' % (obj,
+                                                                      conn)
                     #break ocnnection to shader
                     pm.disconnectAttr(plugs[0])
 
 
-def getShaders( obj ):
-    pm.select( obj )
-    pm.hyperShade( shaderNetworksSelectMaterialNodes=True )
-    return pm.ls(sl=True) # Returns all shaders associated with the object (shape, face etc)
+def getShaders(obj):
+    pm.select(obj)
+    pm.hyperShade(shaderNetworksSelectMaterialNodes=True)
+    return pm.ls(
+        sl=True
+    )  # Returns all shaders associated with the object (shape, face etc)
 
 
-
-def copyPasteMaterial( objects ):
+def copyPasteMaterial(objects):
     source = objects[0]
     target = objects[-1]
 
-    pm.select( source )
-    pm.hyperShade( shaderNetworksSelectMaterialNodes=True )
-    shaders = pm.ls(sl=True) # all shaders associated with the object (shape, face etc)
-    
+    pm.select(source)
+    pm.hyperShade(shaderNetworksSelectMaterialNodes=True)
+    shaders = pm.ls(
+        sl=True)  # all shaders associated with the object (shape, face etc)
+
     shader = [s for s in shaders if s.type() != 'renderLayer']
     shadingEngine = shader[0].listConnections(type='shadingEngine')
 
     pm.sets(shadingEngine[0], edit=True, forceElement=target)
+
 
 def setReceiveShadow(objectList):
     for o in objectList:
         try:
             shape = o.getShape()
             print o
-            pm.setAttr('%s.receiveShadows'%shape, 0)
+            pm.setAttr('%s.receiveShadows' % shape, 0)
         except:
             print 'no shape found. skipping'
             pass
-    
+
+
+def convertFileAlphaConnectionsToLuma():
+    filenodes = pm.ls(type='file')
+
+    pm.select(filenodes[0])
+    for filenode in filenodes:
+        alphaConnections = filenode.outAlpha.listConnections(plugs=1)
+        for alphaConnection in alphaConnections:
+            luminanceNode = pm.shadingNode('luminance', asUtility=1)
+            filenode.outColor >> luminanceNode.value
+            luminanceNode.outValue >> alphaConnection
+
+
+def replaceBumpWithAiNormalForNormalFileNodes(filenodes='all'):
+    if filenodes == 'all':
+        filenodes = pm.ls(type='file')
+
+    for filenode in filenodes:
+        filename = filenode.fileTextureName.get().split('/')[-1].split('.')[0]
+        if 'norm' in filename:
+            print filename
+            alphaConnections = filenode.outAlpha.listConnections(
+                destination=1, plugs=1) + filenode.outColor.listConnections(
+                    destination=1, plugs=1)
+
+            for aplhaConnection in alphaConnections:
+                print aplhaConnection.split('.')
+                if aplhaConnection.split('.')[-1] == 'bumpValue':
+                    print 'found normal file to bump connection: %s' % alphaConnection
+                    destinationConnections = pm.listConnections(
+                        aplhaConnection.split('.')[0] + '.outNormal',
+                        destination=1,
+                        plugs=1)
+                    print 'destinationconnection is: %s' % destinationConnection
+                    if destinationConnections == []:
+                        print 'No destination Connection found for bump'
+                        break
+                    normalNode = pm.shadingNode('aiNormalMap', asUtility=1)
+                    filenode.outColor >> normalNode.input
+                    normalNode.outValue >> destinationConnection[0]
+                    pm.delete(aplhaConnection.split('.')[0])
