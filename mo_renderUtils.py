@@ -11,15 +11,17 @@ def renderlayerOverride_attribute(attribute, enable=0):
     objs = []
 
     for s in sel:
-        objs = pm.ls(s, type='mesh') + pm.listRelatives(
-            s, children=1, ad=1, type='mesh')
+        print 's is %s' % s
+        objs = pm.ls(s, type='transform') + pm.listRelatives(
+            s, children=1, ad=1, type='transform')
         for obj in objs:
             try:
+                print 'changing %s.%s' % (obj, attribute)
                 obj = obj.getShape()
+                pm.editRenderLayerAdjustment("%s.%s" % (obj, attribute))
+                pm.setAttr("%s.%s" % (obj, attribute), enable)
             except:
                 pass
-            pm.editRenderLayerAdjustment("%s.%s" % (obj, attribute))
-            pm.setAttr("%s.%s" % (obj, attribute), enable)
     printon = 'off'
     if enable == 1: printon = 'on'
     pm.system.warning('Successs. Turned %s %s on %s meshes' %

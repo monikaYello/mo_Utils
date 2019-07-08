@@ -51,8 +51,9 @@ def alignPos_rotationPivot():
     rpB = cmds.xform(snp[1], q=1, rp=1)  # rotate pivot a
     rpA = cmds.xform(snp[0], q=1, rp=1)  # rotate pivot b
 
-    pm.xform(ws=1, t=((pos[0] + rpA[0] - rpB[0]),
-                      (pos[1] + rpA[1] - rpB[1]), (pos[2] + rpA[2] - rpB[2])))
+    pm.xform(ws=1,
+             t=((pos[0] + rpA[0] - rpB[0]), (pos[1] + rpA[1] - rpB[1]),
+                (pos[2] + rpA[2] - rpB[2])))
 
 
 def align_centerOfComponents(type="locator"):
@@ -132,8 +133,12 @@ def align_centerOfComponents(type="locator"):
 def movePivot(objects, moveto="zero"):
     for object in objects:
         if moveto == "zero":
-            pm.move(0, 0, 0, object + ".scalePivot",
-                    object + ".rotatePivot", absolute=True)
+            pm.move(0,
+                    0,
+                    0,
+                    object + ".scalePivot",
+                    object + ".rotatePivot",
+                    absolute=True)
         if moveto == "minY":
             bbox = pm.exactWorldBoundingBox(object)
             currentPivot = pm.xform(object, q=1, rp=1, ws=1)
@@ -154,6 +159,23 @@ def movePivot(objects, moveto="zero"):
             pm.xform(object, piv=bottom, ws=True)
         if moveto == "center":
             pm.xform(object, cp=1)
+
+
+def copyPivot(objs=[]):
+    # copies the pivot from the first selected object to the second selected object
+    if objs == []:
+        objs = pm.ls(sl=1)
+    if len(objs) < 2:
+        pm.pm.mel.error("Not enough objects selected.. exiting\n")
+
+    if len(objs) > 2:
+        pm.pm.mel.warning(
+            "more than two objects selected.  Copying the pivot from the first object onto all the other objects.."
+        )
+
+    pos = pm.xform(objs[0], q=1, rp=1, ws=1)
+    for o in objs[1:]:
+        pm.xform(o, piv=(pos[0], pos[1], pos[2]), ws=1)
 
 
 def moveToZero(objs, freezeTransform=1):
@@ -184,9 +206,9 @@ def layoutGrid(objectList, xDistance, yDistance, xAmount, yAmount):
     y = 0
 
     for obj in objectList:
-        pm.xform(obj, t=(x*xDistance, y*yDistance*-1, 0))
-        x = x+1
-        if(x % xAmount) == 0:
+        pm.xform(obj, t=(x * xDistance, y * yDistance * -1, 0))
+        x = x + 1
+        if (x % xAmount) == 0:
             y = y + 1
             x = 0
 
