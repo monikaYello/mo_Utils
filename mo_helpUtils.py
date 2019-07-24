@@ -1,5 +1,5 @@
 '''
-# help#
+
 #################### HELP ########################
 
 help(pm.matchTransform)
@@ -17,6 +17,7 @@ module = pm.selected()[0]
 for found in ([i for i in dir(module) if 'get' in i]): print found
 
 '''
+
 
 '''
 #################### SOURCING ########################
@@ -40,6 +41,64 @@ mo_displayUtil.layoutCleanScripting()
 # third party
 sys.path.append("D:\Google Drive\PythonScripting\\thirdParty")
 import glTools.tools.removeReferenceEdits
+''''
+
+
+'''
+###################### TYPE CHECK ##########################
+object = 'objectname'
+if isinstance(object, basestring):
+	object = pm.PyNode(object)
+print object.nodeType()
+
+if object.nodeType() == 'shadingEngine':
+
+
+####################### ERROR CONTROL ###################################
+# try/except
+try:
+	pm.select(obj)
+except:
+	print 'error'
+
+try:
+	raise RuntimeError()
+except RuntimeError as e:
+	print "We had a runtime error"
+except:
+	print e
+	print "We had another error"
+
+try:
+	raise Exception()
+except:
+	print "There was an exception"
+	raise e
+else:
+	print "There were no errors"
+finally:
+	print "This will run regardless"
+
+# assert something is true, throw error otherwise
+assert len(color) == 3, "You must provide a list of 3 colors"
+
+# logging
+logging.basicConfig()
+logger = logging.getLogger('LightingManager')
+logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO) # this won't show debug logging
+
+logger.debug('Using Pyside with shiboken')
+
+
+######### partial lamda ###################
+partial takes pre-defined values, lamda takes values when function gets called
+
+self.name.toggled.connect(lambda val: self.light.visibility.set(val))
+self.name.toggled.connect( partial(pm.shadingNode, 'areaLight', asLight=True))
+	.....
+
+
 
 
 '''

@@ -870,6 +870,7 @@ def scaleShape(factor, objs=None, axis='XYZ'):
         if len(pm.ls(sl=1)) < 1:
             return False
         objs = pm.ls(sl=1)
+
     factors = [factor, factor, factor]
     print 'Scaling: Axis is %s'%axis
     if axis != 'XYZ':
@@ -880,14 +881,49 @@ def scaleShape(factor, objs=None, axis='XYZ'):
         if 'Z' not in axis:
             factors[0] = 1
     for obj in objs:
-        if obj.type() == 'transform':
-            shapenode = obj.getShape()
-        else:
-            shapenode = obj
-        pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
-        pm.scale(factors[0], factors[1], factors[2])
+        shapenodes = getFirstShapeNodes()
+        for shapenode in shapenodes:
+            pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
+            pm.scale(factors[0], factors[1], factors[2])
     pm.select(objs)
 
+
+###############################
+## rotate shape node by factor
+###############################
+def rotateShape(degree, objs=None, axis='X'):
+    if objs == None:
+        if len(pm.ls(sl=1)) < 1:
+            return False
+        objs = pm.ls(sl=1)
+
+    rotateValues = [0, 0, 0]
+    print 'Rotating: Axis is %s'%axis
+
+    if axis == 'X':
+        rotateValues[0] = degree
+    elif axis == 'Y':
+        rotateValues[1] = degree
+    elif axis == 'Z':
+        rotateValues[2] = degree
+    
+    for obj in objs:
+        shapenodes = getFirstShapeNodes()
+        for shapenode in shapenodes:
+            pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
+            pm.rotate(factors[0], factors[1], factors[2])
+    pm.select(objs)
+
+def getFirstShapeNodes(objs):
+   shapelist = []
+   for obj in objs:
+       if obj.getShape():
+           shapelist.append(obj.getShape())
+   if len(shapelist) > 0:
+       return shapelist
+   else:
+       findfirstshape(obj.listRelatives(children=1))
+   
 
 ###############################
 ##   create ikSpline solver
