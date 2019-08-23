@@ -101,3 +101,32 @@ def exportASS(obj_to_export):
                            s=1,
                            boundingBox=1,
                            shadowLinks=0)
+
+
+
+def makeCurveRenderable(curves=[], shadername='featherFine_ai', curveWidth=0.002, sampleRate=6):
+    if curves == []: curves=pm.selected()
+    for dupCurve in curves:
+        dupCurveShape=dupCurve.getShape()
+        pm.setAttr(dupCurveShape.aiRenderCurve, 1)
+        pm.setAttr(dupCurveShape.aiCurveWidth, curveWidth)
+        pm.setAttr(dupCurveShape.aiSampleRate, sampleRate)
+        pm.connectAttr("%s.outColor"%shadername, dupCurveShape.aiCurveShader, f=1)
+
+
+def disableAllImageplanes():
+        scene_imgplanes = cmds.ls(type='imagePlane')
+        hidden_imgplanes = []
+        for scene_imgplane in scene_imgplanes:
+            print cmds.getAttr('%s.displayMode'%scene_imgplane) 
+            if cmds.getAttr('%s.displayMode'%scene_imgplane) > 0:
+                    print('Disabling imageplane %s'%scene_imgplane)
+                    cmds.setAttr('%s.displayMode'%scene_imgplane, 0)
+                    hidden_imgplanes.append(scene_imgplane)
+        return hidden_imgplanes
+
+def enableImageplanes(hidden_imgplanes):
+        for hidden_imgplane in hidden_imgplanes:
+                if cmds.getAttr('%s.displayMode'%hidden_imgplane) == 0:
+                        print('Enabling imageplane %s'%hidden_imgplane)
+                        cmds.setAttr('%s.displayMode'%hidden_imgplane, 3)

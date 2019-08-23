@@ -250,12 +250,22 @@ def disconnectShaders(objArray=None):
                     pm.disconnectAttr(plugs[0])
 
 
-def getShaders(obj):
+def get_shaders_assigned_to_object(obj):
     pm.select(obj)
     pm.hyperShade(shaderNetworksSelectMaterialNodes=True)
     return pm.ls(
         sl=True
     )  # Returns all shaders associated with the object (shape, face etc)
+
+
+def get_materials_in_scene():
+    # No need to pass in a string to `type`, if you don't want to.
+    for shading_engine in pm.ls(type=pm.nt.ShadingEngine):
+        # ShadingEngines are collections, so you can check against their length
+        if len(shading_engine):
+            # You can call listConnections directly on the attribute you're looking for.
+            for material in shading_engine.surfaceShader.listConnections():
+                yield material
 
 
 def copyPasteMaterial(objects):
@@ -350,87 +360,105 @@ def replaceBumpWithAiNormalForNormalFileNodes(filenodes='all'):
 #     basename = base_node.replace('_ai', '')
 #     renameShadingTree(base_node, basename, target_attr = None)
 
-def renameShadingTree(base_node, basename, target_attr = None, skip_nodes = ['defaultColorMgtGlobals']):
-    input_plugs =  base_node.connections(source=1, d=0, scn=1, plugs=1)
-    node_list = skip_nodes
-    if base_node.nodeType() == 'shadingEngine':
-        input_plugs = base_node.volumeShader.connections(source=1, d=0, scn=1, plugs=1) + base_node.displacementShader.connections(source=1, d=0, scn=1, plugs=1)
+class ShaderRenamer():
+    def __init__(self):
+        self.shaderDic = {
+            'aiStandardSurface':'_ai', 
+            'aiMixShader':'_aiMix',
+            'aiTwoSided':'_ai2Side',
+            'aiStandardVolume':'_aiVol',
+            'aiWireframe':'_aiWire',
+            'aiCarPaint':'_aiCar',
+            'aiFlat':'_aiFlat',
+            'aiShadowMatte':'_aiShdwMtt',
+            'aiSwitch':'_aiSwitch',
+            'aiWireframe':'_aiWire', 
+            'surfaceShader':'_ss',
+            'layeredShader':'_layShd'
+                        }
+        self.attributeDic = {
+            'outColor':'color',
+            'specularColor':'specColor',
+            'specularRoughness':'specRough',
+        }
+    def renameShadingTree(self, base_node, basename, target_attr = None, skip_nodes = ['defaultColorMgtGlobals']):
+        print 'renaming'
+        input_plugs =  base_node.connections(source=1, d=0, scn=1, plugs=1)
+        node_list = skip_nodes
+        if base_node.nodeType() == 'shadingEngine':
+            input_plugs = base_node.volumeShader.connections(source=1, d=0, scn=1, plugs=1) + base_node.displacementShader.connections(source=1, d=0, scn=1, plugs=1)
         
-    if base_node.nodeType() == 'aiStandardSurface':
-        pm.rename(base_node, base_node.replace('_ai', '') + '_ai')
-        basename = base_node.replace('_ai', '')
-        print 'new basename is %s'%basename
-    
-    for input_plug in input_plugs:
-        print 'input plug is %s'%input_plug
-        print 'input plugtype is %s'%input_plug.nodeType()
-        node = input_plug.plugNode()
-        if node in node_list:
-            continue
-        node_list.append(input_plug.plugNode())
-        
-        node_type = node.nodeType()
-        if target_attr == None:
-            target_attr = input_plug.connections(plugs=1)[0].plugAttr(longName=True)
-        new_name = '%s_%s_%s01'%(basename, target_attr, node_type)
-        print 'input plug is %s. newname is %s'%(input_plug, new_name)
-        #pm.rename(node, new_name)
-        renameShadingTree(node, basename, target_attr=target_attr)
+        # check if shader - rename
+        base_node_type = base_node.nodeType() 
+        if base_node_type in pm.listNodeTypes( 'shader' ):
+            if base_node_type in self.shaderDic.keys():
+                pm.rename(base_node, base_node.replace(self.shaderDic[base_node_type], '') + self.shaderDic[base_node_type])
+                basename = base_node.replace(self.shaderDic[base_node_type], '')
+            else:
+                basename = base_node
+                pm.rename(base_node, base_node + '_%s'%base_node_type)
+            target_attr = None
+            print 'Found shader. Renaming %s. New basename is %s'%(base_node, basename)
 
-def renameSelectedShadingTree():
+
+        for input_plug in input_plugs:
+            #print 'input plug is %s'%input_plug
+            #print 'input plugtype is %s'%input_plug.nodeType()
+            node = input_plug.plugNode()
+            node_type = node.nodeType()
+            #print 'node is %s. node_type is %s'%(node, node_type)
+            
+            # rename only if not a shader
+            if node_type not in pm.listNodeTypes('shader'):
+
+                # skip when already renamed
+                if node in node_list:
+                    continue
+                node_list.append(input_plug.plugNode())
+                
+                # get the attr if not defined yet
+                if target_attr == None:
+                    target_attr = input_plug.connections(plugs=1)[0].plugAttr(longName=True)
+                if node_type in self.attributeDic.keys():
+                    node_type = self.attributeDic[node_type]
+
+                # renaming
+                new_name = '%s_%s_%s01'%(basename, target_attr, node_type)
+                print 'Renaming input plug at %s. Renaming to %s'%(input_plug, new_name)
+                pm.rename(node, new_name)
+                
+            # recursive for children
+            self.renameShadingTree(node, basename, target_attr=target_attr)
+
+def renameShadingTrees(base_nodes = [], all_in_scene=False):
     """Rename the selected Shading tree. need to have shader selected
+    import mo_Utils.mo_shaderUtils as mo_shaderUtils
+    reload(mo_shaderUtils)
+    mo_shaderUtils.renameSelectedShadingTree()
     """
-    base_node = pm.PyNode('body_ai')
-    basename = base_node.replace('_ai', '')
-    SG = base_node.connections(t="shadingEngine")
-    pm.rename(SG[0], base_node + 'SG')
-    renameShadingTree(base_node, basename, target_attr=None)
-    renameShadingTree(SG[0], basename, target_attr=None)
-
-'''
-
-def renameShadingTree(base_node, basename, target_attr = None, skip_nodes = ['defaultColorMgtGlobals']):
-    input_plugs =  base_node.connections(source=1, d=0, scn=1, plugs=1)
-    node_list = skip_nodes
+    if all_in_scene:
+        base_nodes = pm.ls(mat=True)[2:]
+        print 'Renaming All Shaders: %s'%base_nodes
     
-    if base_node.nodeType() == 'shadingEngine':
-        print 'shading engine'
-        input_plugs = base_node.surfaceShader.connections(source=1, d=0, scn=1, plugs=1) + base_node.volumeShader.connections(source=1, d=0, scn=1, plugs=1) + base_node.displacementShader.connections(source=1, d=0, scn=1, plugs=1)
+    if base_nodes == []:
+        base_nodes = pm.selected()
+        
+        base_node_type = base_node.nodeType() 
+        if base_node_type not in pm.listNodeTypes( 'shader' ):
+            pm.warning('No Shader Selected. Please select a shader and try again.')
+            return
+        
+        print 'Renaming Selected: %s'%base_nodes
+        
     
-    for input_plug in input_plugs:
-        print 'input plug is %s'%input_plug
-        print 'input plugtype is %s'%input_plug.nodeType()
-        print 'basename is %s'%basename
-        node = input_plug.plugNode()
-        if node in node_list:
-            continue
-        
-        node_list.append(input_plug.plugNode())
-        node_type = node.nodeType()
-        
-        if target_attr == None:
-            target_attr = input_plug.connections(plugs=1)[0].plugAttr(longName=True)
-        
-        if  input_plug.connections(plugs=1)[0].nodeType() == 'aiStandardSurface':
-            target_attr = input_plug.connections(plugs=1)[0].plugAttr(longName=True)
-        else:
-            new_name = '%s_%s_%s01'%(basename, target_attr, node_type)
-            print 'node plug is %s. newname is %s'%(input_plug, new_name)
-            pm.rename(node, new_name)     
-        print 'target attr is %s'%target_attr
-        renameShadingTree(node, basename, target_attr=target_attr)
+    shd_renamer = ShaderRenamer()
 
-def renameSelectedShadingTree():
-    base_node = pm.PyNode('body_ai')
-    basename = base_node.replace('_ai', '')
-    SG = base_node.connections(t="shadingEngine")
-    pm.rename(SG[0], base_node + 'SG')
-    print 'start base name is %s'%basename
-    renameShadingTree(SG[0], basename, target_attr=None)
+    for base_node in base_nodes:
+        print 'renaming Hierarchy %s'%base_node
+        basename = base_node.replace('_ai', '')
+        shd_renamer.renameShadingTree(base_node, basename, target_attr=None)
 
-
-import pymel.core as pm
-renameSelectedShadingTree()
-
-
-'''
+        SG = base_node.connections(t="shadingEngine")
+        if len(SG) > 0:
+            pm.rename(SG[0], base_node + 'SG')
+            shd_renamer.renameShadingTree(SG[0], basename, target_attr=None)

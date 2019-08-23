@@ -46,12 +46,19 @@ import glTools.tools.removeReferenceEdits
 
 '''
 ###################### TYPE CHECK ##########################
+
 object = 'objectname'
 if isinstance(object, basestring):
 	object = pm.PyNode(object)
 print object.nodeType()
 
+
+if isinstance(light, pm.nodetypes.Transform):
+	light = light.getShape()
+
 if object.nodeType() == 'shadingEngine':
+
+pm.objectType(light)
 
 
 ####################### ERROR CONTROL ###################################

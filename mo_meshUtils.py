@@ -11,7 +11,7 @@ import time
 #polySelectEdgesEveryN "edgeRing" 2
 #polySelectEdgesEveryN "edgeLoop" 2
 
-
+#polyRetopo
 
 # duplicateTransformHierarchy(grp, geoProxy=False)
 
@@ -965,3 +965,10 @@ def separateGeo(objArray = None, geoSuffix = 'geo', grpSuffix = 'grp', grp=1, ce
     return objs
 
 
+def retopologize():
+    # MEL
+    # turn selected mesh into even quads
+    pm.mel.eval('polyRetopo;')
+    
+    # turn selected mesh into even triangles
+    pm.mel.eval('polyRemesh;')
