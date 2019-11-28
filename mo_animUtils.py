@@ -284,3 +284,143 @@ def randomizeRotationAndScale():
     for geo in pm.selected():
         geo.ry.set(random.uniform(0, 360))
         geo.sy.set(random.uniform(0.8, 1.2))
+
+
+
+def popAnimRaiseTranslateY(objs, startframe=1):
+    i=startframe
+    keyframe1 = 1
+    keyframe2 = keyframe1 + 6
+    keyframe3 = keyframe1 + 9
+    for obj in objs:
+        pm.currentTime(keyframe1, u=0)
+        pm.setKeyframe("%s.ty" %obj)
+        pm.currentTime(keyframe2, u=0)
+        pm.setAttr("%s.translateY" %obj, 50)
+        pm.setKeyframe("%s.ty" %obj)
+        pm.currentTime(keyframe3, u=0)
+        pm.setAttr("%s.translateY" %obj, 0)
+        pm.setKeyframe("%s.ty" %obj, itt="linear")
+        if i % 10 == 0:
+            keyframe1 = keyframe1 + 1
+            keyframe2 = keyframe1 + 6
+            keyframe3 = keyframe1 + 9
+        i= i+1
+
+def popAnimFallTranslateY(objs, startframe=1, height=1300, offset=10):
+    i=0
+    keyframe1 = startframe
+    keyframe2 = keyframe1 + 6
+    keyframe3 = keyframe1 + 9
+    keyframe4 = keyframe1 + 11
+    for obj in objs:
+        pm.cutKey(obj)
+        endpose_ty = pm.getAttr("%s.ty"%obj)
+        endpose_scale = pm.getAttr("%s.scale"%obj)[0]
+        pm.setKeyframe("%s.scale"%obj, t=keyframe1, v= 0)
+        pm.setKeyframe("%s.scale"%obj, t=keyframe1+4, v= endpose_scale)
+        pm.setKeyframe("%s.ty"%obj, t=keyframe1, v= endpose_ty + height)
+        pm.setKeyframe("%s.ty"%obj, t=keyframe2, v= endpose_ty, itt="linear", ott="linear")
+        pm.setKeyframe("%s.ty"%obj, t=keyframe3, v= endpose_ty + (height/50.0))
+        pm.setKeyframe("%s.ty"%obj, t=keyframe4, v= endpose_ty, itt="linear")
+        if i % offset == 0:
+            keyframe1 = keyframe1 + 1
+            keyframe2 = keyframe1 + 6
+            keyframe3 = keyframe1 + 9
+            keyframe4 = keyframe1 + 11
+        i= i+1
+
+
+def popAnimFallTranslateYWiggle(objs, startframe=1, height=1300):
+    i=0
+    keyframe1 = startframe
+    keyframe2 = keyframe1 + 6
+    keyframe3 = keyframe1 + 9
+    keyframe4 = keyframe1 + 11
+    for obj in objs:
+        endpose_ty = pm.getAttr("%s.ty"%obj)
+        endpose_rx = pm.getAttr("%s.rotateX"%obj)
+        pm.setKeyframe("%s.ty"%obj, t=keyframe1, v= endpose_ty + height)
+        pm.setKeyframe("%s.ty"%obj, t=keyframe2, v= endpose_ty, itt="linear", ott="linear")
+        pm.setKeyframe("%s.ty"%obj, t=keyframe3, v= endpose_ty + (height/50.0))
+        pm.setKeyframe("%s.ty"%obj, t=keyframe4, v= endpose_ty, itt="linear")
+        # rotate
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe3, v= endpose_rx)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe4, v= endpose_rx+12)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe4+6, v= endpose_rx-12)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe4+10, v= endpose_rx)
+        if i % 10 == 0:
+            keyframe1 = keyframe1 + 1
+            keyframe2 = keyframe1 + 6
+            keyframe3 = keyframe1 + 9
+            keyframe4 = keyframe1 + 11
+        i= i+1
+
+
+def popAnimScaleYWiggle(objs, startframe=1, offset=2):
+    i=0
+    keyframe1 = startframe
+    keyframe2 = keyframe1 + 6
+    keyframe3 = keyframe1 + 9
+    keyframe4 = keyframe1 + 11
+    for obj in objs:
+        pm.cutKey(obj)
+        endpose_scale = pm.getAttr("%s.scale"%obj)[0]
+        endpose_rx = pm.getAttr("%s.rotateX"%obj)
+        pm.setKeyframe("%s.scale"%obj, t=keyframe1, v=0)
+        pm.setKeyframe("%s.scale"%obj, t=keyframe2, v=endpose_scale*1.1)
+        pm.setKeyframe("%s.scale"%obj, t=keyframe3, v=endpose_scale, itt="linear")
+
+        # rotate
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe2, v= endpose_rx)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe3, v= endpose_rx+12)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe3+4, v= endpose_rx-12)
+        pm.setKeyframe("%s.rotateX"%obj, t=keyframe3+8, v= endpose_rx)
+        if i % offset == 0:
+            keyframe1 = keyframe1 + 1
+            keyframe2 = keyframe1 + 6
+            keyframe3 = keyframe1 + 9
+        i= i+1
+
+def popAnimScale(objs, startframe=1, offset=2):
+    i=0
+    keyframe1 = startframe
+    keyframe2 = keyframe1 + 6
+    keyframe3 = keyframe1 + 9
+    for obj in objs:
+        pm.currentTime(keyframe1, u=0)
+        pm.setAttr("%s.scaleZ" %obj, 0)
+        pm.setAttr("%s.scaleY" %obj, 0)
+        pm.setAttr("%s.scaleX" %obj, 0)
+        pm.setKeyframe("%s.sx" %obj, "%s.sy" %obj, "%s.sz" %obj)
+        pm.currentTime(keyframe2, u=0)
+        pm.setAttr("%s.scaleZ" %obj, 1.15)
+        pm.setAttr("%s.scaleY" %obj, 1.15)
+        pm.setAttr("%s.scaleX" %obj, 1.15)
+        pm.setKeyframe("%s.sx" %obj, "%s.sy" %obj, "%s.sz" %obj)
+        pm.currentTime(keyframe3, u=0)
+        pm.setAttr("%s.scaleZ" %obj, 1)
+        pm.setAttr("%s.scaleY" %obj, 1)
+        pm.setAttr("%s.scaleX" %obj, 1)
+        pm.setKeyframe("%s.sx" %obj, "%s.sy" %obj, "%s.sz" %obj, itt="linear")
+        if i % offset == 0:
+            keyframe1 = keyframe1 + 2
+            keyframe2 = keyframe1 + 6
+            keyframe3 = keyframe1 + 9
+        i= i+1
+      
+def popAnimVisibility(objs, startframe=1):
+    i=0
+    keyframe1 = startframe
+    keyframe2 = keyframe1 + 1
+    for obj in objs:
+        pm.currentTime(keyframe1, u=0)
+        pm.setAttr("%s.visibility" %obj, 0)
+        pm.setKeyframe("%s.v" %obj)
+        pm.currentTime(keyframe2, u=0)
+        pm.setAttr("%s.visibility" %obj, 1)
+        pm.setKeyframe("%s.v" %obj)
+        if i % 1 == 0:
+            keyframe1 = keyframe1 + 1
+            keyframe2 = keyframe1 + 1
+        i= i+1

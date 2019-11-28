@@ -141,3 +141,34 @@ def transferAttrs(sourceObj, targetObjs, attributes=[]):
                             print('//  {0}.{1} was set to {2}  //\n'.format(targetObj.name(), attribute, attrVal) )
             else:
                 print('!!  {0} does not exist  !!\n'.format(attribute))
+
+
+def bulletRagdoll:
+    for jnt in jnts:
+        ragdoll = pm.ls('%s_*'%jnt.split(':')[-1])
+        print 'ragdoll found: %s '%ragdoll
+        if len(ragdoll) > 0:
+            pm.parentConstraint(ragdoll[0], jnt, mo=1)
+    
+
+def limitJointsRadgoll:
+    import pymel.core as pm
+    rigname = 'female_doll'
+    for side in ['Right', 'Left']:
+        pm.transformLimits('%s_%sUpLeg'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sLeg'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sFoot'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sToeBase'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sShoulder'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sArm'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 100), rz=(-90, 90))
+        pm.transformLimits('%s_%sForeArm'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_%sHand'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-90, 12), rz=(-90, 90))
+        pm.transformLimits('%s_Spine'%(rigname, side), erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-45, 45), rz=(-90, 90))
+    
+    pm.transformLimits('%s_Spine1'%rigname, erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-45, 45), rz=(-90, 90))
+    pm.transformLimits('%s_Spine2'%rigname, erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-12, 12), ry=(-45, 45), rz=(-90, 90))
+    pm.transformLimits('%s_Neck'%rigname, erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-45, 45), ry=(-45, 45), rz=(-40, 40))
+    pm.transformLimits('%s_Head'%rigname, erx=(1, 1),  ery=(1, 1), erz=(1, 1), rx=(-45, 45), ry=(-45, 45), rz=(-90, 40))
+
+
+

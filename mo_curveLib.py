@@ -514,6 +514,7 @@ def colorOverride(color, objs=None):
         
         obj.overrideEnabled.set(True)
         obj.overrideColor.set(colorid)
+        obj.getShape().overrideRGBColors.set(0)
         obj.getShape().overrideEnabled.set(True)
         obj.getShape().overrideColor.set(colorid)
 

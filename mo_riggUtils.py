@@ -881,7 +881,7 @@ def scaleShape(factor, objs=None, axis='XYZ'):
         if 'Z' not in axis:
             factors[0] = 1
     for obj in objs:
-        shapenodes = getFirstShapeNodes()
+        shapenodes = getFirstShapeNodes([obj])
         for shapenode in shapenodes:
             pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
             pm.scale(factors[0], factors[1], factors[2])
@@ -1895,3 +1895,120 @@ def addBendToCtrl():
         pm.addAttr(ctrl, ln='bendVertical', at='double', k=1)
         ctrl.bendnodeVert >> bendnodeVert[0].curvature
         pm.parent(bendnodeVert[1], ctrl)
+
+def orientJoints(joints, aimAxis, upAxis, upDir, doAuto):
+	"""
+	*
+	*  $joints is array of joints to orient
+	*  $aimAxis = is xyz array of what axis of joint does aim
+	*  $upAxis = is xyz array of what axis of joint does up
+	*  $upDir = what vector to use for up direction?
+	*  $doAuto = If possible will try to guess the up axis otherwise
+	*      it will use prev joint up axis or else world upDir.
+	*  
+	"""
+	
+
+	nJnt=len(joints)
+	i = 0
+	prevUp=pm.dt.Vector([0, 0, 0])
+	# Now orient each joint
+	for i in range(0,nJnt):
+		childs=pm.listRelatives(joints[i], type=["transform", "joint"], children=1)
+		# First we need to unparent everything and then store that,
+		if len(childs)>0:
+			childs=pm.parent(childs, w=1)
+			# unparent and get NEW names in case they changed...
+			# Find parent for later in case we need it.
+			
+		parents=pm.listRelatives(joints[i], parent=1)
+		parent=parents[0]
+		# Now if we have a child joint...aim to that.
+		aimTgt=""
+		child = ""
+		for child in childs:
+			if pm.nodeType(child) == "joint":
+				aimTgt=str(child)
+				break
+				
+			
+		if aimTgt != "":
+			upVec=[0, 0, 0]
+			#  print ("// DEBUG: JNT="+$joints[$i]+" Parent="+$parent+" AimTgt="+$aimTgt+" //\n") ;
+			# First off...if $doAuto is on, we need to guess the cross axis dir.
+			#
+			if doAuto:
+				posJ=pm.xform(joints[i], q=1, rp=1, ws=1)
+				# Now since the first joint we want to match the second orientation
+				# we kind of hack the things passed in if it is the first joint
+				# ie: If the joint doesn't have a parent...OR if the parent it has
+				# has the "same" position as itself...then we use the "next" joints
+				# as the up cross calculations
+				#
+				posP=posJ
+				if parent != "":
+					posP=pm.xform(parent, q=1, rp=1, ws=1)
+					
+				tol=0.0001
+				# How close to we consider "same"?
+				if parent == "" or (abs(posJ[0] - posP[0])<=tol and abs(posJ[1] - posP[1])<=tol and abs(posJ[2] - posP[2])<=tol):
+					aimChilds=pm.listRelatives(aimTgt, children=1)
+					aimChild=""
+					child = ""
+					for child in aimChilds:
+						if pm.nodeType(child) == "joint":
+							aimChild=str(child)
+							break
+							
+						
+					upVec=pm.mel.cJO_getCrossDir(joints[i], aimTgt, aimChild)
+					
+				
+				else:
+					upVec=pm.mel.cJO_getCrossDir(parent, joints[i], aimTgt)
+					
+				
+			if not doAuto or (upVec[0] == 0.0 and upVec[1] == 0.0 and upVec[2] == 0.0):
+				upVec=upDir
+				# or else use user set up Dir. if needed
+				
+			aCons=pm.aimConstraint(aimTgt, joints[i], 
+				aim=(aimAxis[0], aimAxis[1], aimAxis[2]), 
+				worldUpType="vector", 
+				weight=1.0, 
+				upVector=(upAxis[0], upAxis[1], upAxis[2]), 
+				worldUpVector=(upVec[0], upVec[1], upVec[2]))
+			pm.delete(aCons)
+			# Now compare the up we used to the prev one.
+			curUp=pm.dt.Vector([upVec[0], upVec[1], upVec[2]])
+			curUp=pm.dt.Vector(pm.mel.unit(curUp))
+			dot=float(curUp * prevUp)
+			# dot product for angle betwen...
+			prevUp=pm.dt.Vector([upVec[0], upVec[1], upVec[2]])
+			# store for later
+			if i>0 and dot<=0.0:
+				pm.xform(joints[i], r=1, os=1, ra=((aimAxis[0] * 180.0), (aimAxis[1] * 180.0), (aimAxis[2] * 180.0)))
+				# Adjust the rotation axis 180 if it looks like we've flopped the wrong way!
+				prevUp*=pm.dt.Vector(-1.0)
+				
+			pm.joint(joints[i], zso=1, e=1)
+			# And now finish clearing out joint axis...
+			pm.makeIdentity(joints[i], apply=True)
+			
+		
+		elif parent != "":
+			oCons=pm.orientConstraint(parent, joints[i], 
+				weight=1.0)
+			# Otherwise if there is no target, just dup orienation of parent...
+			pm.delete(oCons)
+			# And now finish clearing out joint axis...
+			pm.joint(joints[i], zso=1, e=1)
+			pm.makeIdentity(joints[i], apply=True)
+			
+		if len(childs)>0:
+			pm.parent(childs, joints[i])
+			# Now that we're done... reparent
+			
+		
+	
+

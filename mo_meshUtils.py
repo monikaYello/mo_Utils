@@ -972,3 +972,93 @@ def retopologize():
     
     # turn selected mesh into even triangles
     pm.mel.eval('polyRemesh;')
+
+
+def deleteIntersectingGeos():
+    pm.delete(findIntersectingGeos(sel=False))
+
+def findIntersectingGeosPymel(select_overlapping=True):
+    geos = pm.selected()
+    i= len(geos)
+    intersecting_geos = []
+    for i in range(len(geos)):
+        for compare_i in range((i+1),len(geos)):
+            #print 'comparing %s with %s'%(i, compare_i)
+            bbox1=pm.exactWorldBoundingBox(geos[i])
+            bbox2=pm.exactWorldBoundingBox(geos[compare_i])
+            # xmin, ymin, zmin, xmax, ymax, zmax.
+            
+            xminA, yminA, zminA, xmaxA, ymaxA, zmaxA = bbox1[0], bbox1[1], bbox1[2], bbox1[3], bbox1[4],  bbox1[5]
+            xminB, yminB, zminB, xmaxB, ymaxB, zmaxB = bbox2[0], bbox2[1], bbox2[2], bbox2[3], bbox2[4],  bbox2[5]
+            
+            intersect_true = (((xminB > xminA) & (xminB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) | 
+                ((xminB > xminA) & (xminB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xminB > xminA) & (xminB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xminB > xminA) & (xminB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)))
+            if intersect_true: intersecting_geos.append(geos[i])
+    if select_overlapping: pm.select(intersecting_geos)
+    return intersecting_geos
+
+
+def findIntersectingGeos(geos, select_overlapping=True, dict=False):
+    '''
+    Find intersecting geos by bounding box overlap
+    geos:List
+        list of geos to compare with
+    select_overlapping:bool
+        just return or also select the intersecting geos
+    dict:
+        if true returns dictinoary of interecting_with:intersecting_geo
+    return
+        list with intersecting_geo
+
+    USE:
+    a) Copy the file (mog_ikFkSwitch.py) to your Maya scripts directory. On Windows that is Documents/maya/20xx/scripts/
+    b) Select the geometries to check on 
+    c) In the Script Editor (Python), past the following code:
+    geos = pm.selected()
+    findIntersectingGeos(geos, select_overlapping=True)
+    d) Hit execute (or Ctrl Enter)
+
+    '''
+    i= len(geos)
+    intersecting_geos = {}
+    compare_again = []
+    for i in range(len(geos)):
+        for compare_i in range((i+1),len(geos)):
+            #print 'comparing %s with %s'%(i, compare_i)
+            bbox1=cmds.exactWorldBoundingBox(geos[i])
+            bbox2=cmds.exactWorldBoundingBox(geos[compare_i])
+            # xmin, ymin, zmin, xmax, ymax, zmax.
+            
+            xminA, yminA, zminA, xmaxA, ymaxA, zmaxA = bbox1[0], bbox1[1], bbox1[2], bbox1[3], bbox1[4],  bbox1[5]
+            xminB, yminB, zminB, xmaxB, ymaxB, zmaxB = bbox2[0], bbox2[1], bbox2[2], bbox2[3], bbox2[4],  bbox2[5]
+            
+            intersect_true = (((xminB > xminA) & (xminB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) | 
+                ((xminB > xminA) & (xminB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((yminB > yminA) & (yminB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xminB > xminA) & (xminB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xminB > xminA) & (xminB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zminB > zminA) & (zminB < zmaxA)) |
+                ((xmaxB > xminA) & (xmaxB < xmaxA)) & ((ymaxB > yminA) & (ymaxB < ymaxA)) & ((zmaxB > zminA) & (zmaxB < zmaxA)))
+            if intersect_true: 
+                intersecting_geos[geos[compare_i]] = geos[i]
+                if geos[i] in intersecting_geos.keys():
+                    compare_again.append(intersecting_geos[geos[compare_i]])
+                    del intersecting_geos[geos[compare_i]]
+    # compare again geos that the current one intersected with, since there might me no intersection anymore 
+    if len(compare_again)  > 0:
+        dict_2 = findIntersectingGeos(compare_again, select_overlapping=False, dict=True)
+        intersecting_geos.update(dict_2)
+    
+    if select_overlapping:
+        pm.select(intersecting_geos)
+    if dict:
+        return intersecting_geos
+    else:
+        return intersecting_geos.values()
