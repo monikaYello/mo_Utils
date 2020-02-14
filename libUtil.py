@@ -3287,6 +3287,22 @@ def transferSkinWeightsCrvToPoly(crv=None, obj=None):
 
         pm.skinPercent(polySkinCluster, '%s.vtx[%s]'%(obj , v), transformValue=transformValue)
 
+def TransferSkinWeightsPolyToPoly(source, targets):
+
+    # source = pm.selected()[0]
+    # targets = pm.selected()[1:]
+    # TransferSkinWeightsPolyToPoly(source, targets)
+
+    influences=pm.skinCluster(source,query=True,inf=True)
+    for target in targets:
+        try: pm.skinCluster(target, e=1, ub=1)
+        except: pass
+        pm.select(influences, target)
+        targetSknCl=pm.skinCluster()
+    pm.select(source, targets[0])
+    pm.mel.eval('copySkinWeights  -noMirror -surfaceAssociation closestPoint -influenceAssociation closestJoint -influenceAssociation oneToOne -influenceAssociation name;')
+
+
 
 
 def transferSkinWeightsPolyToNurb(poly, nurb):

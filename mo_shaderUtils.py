@@ -86,7 +86,7 @@ def mentalraySetupSoftblast():
     pm.setAttr("miDefaultOptions.shadowMaps", 1)
 
 
-class Colour(pm.dt.Vector):
+class Colour():
     NAMED_PRESETS = {
         "active": (0.26, 1, 0.64),
         "black": (0, 0, 0),

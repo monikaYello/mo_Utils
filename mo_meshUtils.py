@@ -15,6 +15,13 @@ import time
 
 # duplicateTransformHierarchy(grp, geoProxy=False)
 
+def meshReduce(meshes=[], percent=90):
+    if meshes == []:
+        meshes = pm.selected()
+    pm.polyReduce(meshes, keepQuadsWeight=1, ch=1, p=percent, keepFaceGroupBorder=1, keepMapBorderWeight=0.5, replaceOriginal=1, vertexMapName="", keepBorder=1, ver=1, keepColorBorder=1, keepCreaseEdge=1, keepBorderWeight=0.5, keepHardEdgeWeight=0.5, vct=0, tct=0, useVirtualSymmetry=0, keepColorBorderWeight=0.5, symmetryTolerance=0.01, keepHardEdge=1, keepCreaseEdgeWeight=0.5, sy=1, shp=0, sz=0, keepFaceGroupBorderWeight=0.5, sx=0, trm=0, keepMapBorder=1, sw=0, cachingReduce=1, preserveTopology=1)
+
+
+
 def getVertexOm2(mesh=None):
     """
     Using Maya Python API 2.0

@@ -881,7 +881,9 @@ def scaleShape(factor, objs=None, axis='XYZ'):
         if 'Z' not in axis:
             factors[0] = 1
     for obj in objs:
+        print 'obj is %s'%objs
         shapenodes = getFirstShapeNodes([obj])
+        print 'shapenodes is: %s'%shapenodes
         for shapenode in shapenodes:
             pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
             pm.scale(factors[0], factors[1], factors[2])
@@ -908,22 +910,26 @@ def rotateShape(degree, objs=None, axis='X'):
         rotateValues[2] = degree
     
     for obj in objs:
-        shapenodes = getFirstShapeNodes()
+        shapenodes = getFirstShapeNodes([obj])
+        print 'shapenodes are: %s'%shapenodes
         for shapenode in shapenodes:
             pm.select(shapenode.cv[0:shapenode.numCVs() - 1])
-            pm.rotate(factors[0], factors[1], factors[2])
+            pm.rotate(rotateValues[0], rotateValues[1], rotateValues[2])
     pm.select(objs)
 
 def getFirstShapeNodes(objs):
-   shapelist = []
-   for obj in objs:
-       if obj.getShape():
+    shapelist = []
+    print 'objs is %s'%objs
+    for obj in objs:
+        if obj.getShape():
            shapelist.append(obj.getShape())
-   if len(shapelist) > 0:
-       return shapelist
-   else:
-       findfirstshape(obj.listRelatives(children=1))
+        else:
+            for children in obj.listRelatives(children=1, type='transform', ad=1):
+                if children.getShape():
+                    shapelist.append(children.getShape())
+    return shapelist
    
+
 
 ###############################
 ##   create ikSpline solver
@@ -1240,17 +1246,34 @@ class Ctrl():
             #print('controller is %s'%controller)
             mo_curveLib.setRGBColor(controller.getShape(), color)
 
+    def findTarget(self):
+
+        target = self.name.replace('_ctrl', '') 
+        if pm.objExists(target) == True:
+            return target
+        
+        target = self.name.replace('_ctrl', '_jnt')
+        if pm.objExists(target) == True:
+            return target
+        
+        # namespace
+        target = self.name.replace('_ctrl', '')
+        targets = pm.ls('*:%s'%target)
+        print 'searching for target with namespace: %s'%target
+        if len(targets) > 0:
+            target = targets[0]
+            return target
+        else:
+            return None
 
     def connect(self):
-        target = self.name.replace('_ctrl', '')
+        
         controller = self.name
         if self.gimbal:
             controller = self.gimbal
-
+        target = self.findTarget()
         print 'connecting controller %s to target %s'%(target,controller)
-
-        if pm.objExists(target) == False:
-            target = self.name.replace('_ctrl', '_jnt')
+        
         if pm.objExists(target):
             pm.parentConstraint(controller, target, n=self.name+'_parentConst', mo=1)
             pm.scaleConstraint(controller, target, n=self.name+'_scaleConst', mo=1)
@@ -1258,10 +1281,11 @@ class Ctrl():
             print 'Error conencting. Target object not found'
 
     def disconnect(self):
-        target = self.name.replace('_ctrl', '')
+        
         controller = self.name
-        if pm.objExists(target) == False:
-            target = self.name.replace('_ctrl', '_jnt')
+        
+        target = self.findTarget()
+
         if pm.objExists(target):
             deleteChildrenConstraints(target)
         else:
