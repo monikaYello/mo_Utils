@@ -1219,6 +1219,7 @@ class Ctrl():
         if obj == False:
             obj = pm.ls(sl=1)[-1]
         name = obj.name().replace('_jnt', '')
+        name = name.split(':')[-1]
         self.basename = name
         ctrlName = '%s_%s' % (name, suffix)
         self.name = ctrlName

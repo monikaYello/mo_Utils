@@ -206,3 +206,9 @@ def renameObectsByType(selection=True):
 
     print('Done renaming %s objects.' % len(objects))
     return objects
+
+def createRiggHierarchy(name='object'):
+    worldGrp = pm.group(n='%s_world'%name, world=1)
+    pm.group(n='RIGG', p=worldGrp)
+    pm.group(n='GEO', p=worldGrp)
+    pm.group(n='CTRL', p=worldGrp)
